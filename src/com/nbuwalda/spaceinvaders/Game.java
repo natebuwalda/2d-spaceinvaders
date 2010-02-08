@@ -15,6 +15,11 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.nbuwalda.spaceinvaders.entity.AlienEntity;
+import com.nbuwalda.spaceinvaders.entity.Entity;
+import com.nbuwalda.spaceinvaders.entity.ShipEntity;
+import com.nbuwalda.spaceinvaders.entity.ShotEntity;
+
 public class Game extends Canvas {
 	private static final long serialVersionUID = 1L;
 	
