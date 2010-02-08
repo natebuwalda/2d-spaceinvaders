@@ -11,12 +11,18 @@ public class AlienEntity extends Entity {
 
 	@Override
 	public void move(long delta) {
-		if ((getXVelocity() < 0 && getXPostion() < 10)
-				|| (getXVelocity() > 0 && getXPostion() > 750)) {
+		if ((getXVelocity() < 0 && getXPosition() < 10)
+				|| (getXVelocity() > 0 && getXPosition() > 750)) {
 			game.updateLogic();
 		}
 		
 		super.move(delta);
+	}
+
+	@Override
+	public void collidedWith(Entity other) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

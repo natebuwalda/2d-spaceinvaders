@@ -18,5 +18,16 @@ public class ShotEntity extends Entity {
 		}
 	}
 
+	@Override
+	public void collidedWith(Entity other) {
+		if (other instanceof AlienEntity) {
+			game.removeEntity(this);
+			game.removeEntity(other);
+			
+			game.notifyAlienKilled();
+		}
+		
+	}
+
 	
 }

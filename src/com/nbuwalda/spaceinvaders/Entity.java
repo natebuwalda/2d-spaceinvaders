@@ -1,8 +1,9 @@
 package com.nbuwalda.spaceinvaders;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
-public class Entity {
+public abstract class Entity {
 
 	private double xPosition = 0.0D;
 	private double yPosition = 0.0D;
@@ -19,15 +20,8 @@ public class Entity {
 	public void move(long delta) {
 		double xChange = (delta * xVelocity)/1000;
 		xPosition += xChange;
-		yPosition += (delta * yVelocity)/1000;
-		if (this instanceof ShipEntity) {
-			System.out.println("x = " + xPosition);
-			if (xVelocity != 0) {
-				System.out.println("velocity = " + xVelocity);
-				System.out.println("");
-				System.out.println("x change = " + xChange);
-			}
-		}
+		double yChange = (delta * yVelocity)/1000;
+		yPosition += yChange;
 	}
 
 	public void draw(Graphics2D graphics) {
@@ -42,22 +36,36 @@ public class Entity {
 		}
 	}
 
-	protected double getXPostion() {
+	public boolean collidesWith(Entity other) {
+		Rectangle me = new Rectangle();
+		Rectangle him = new Rectangle();
+		
+		me.setBounds((int) xPosition, (int) yPosition, this.sprite.getWidth(), this.sprite.getHeight());
+		him.setBounds((int) other.getXPosition(), (int) other.getYPosition(), other.getSprite().getWidth(), other.getSprite().getHeight());
+		
+		return me.intersects(him);
+	}
+	
+	public double getXPosition() {
 		return xPosition;
 	}
 	
-	protected double getYPosition() {
+	public double getYPosition() {
 		return yPosition;
 	}
 	
-	protected double getXVelocity() {
+	public double getXVelocity() {
 		return xVelocity;
 	}
 	
-	protected double getYVelocity() {
+	public double getYVelocity() {
 		return yVelocity;
 	}
 
+	public Sprite getSprite() {
+		return sprite;
+	}
+	
 	public void setXVelocity(double xVelocity) {
 		this.xVelocity = xVelocity;
 	}
@@ -66,5 +74,6 @@ public class Entity {
 		this.yVelocity = yVelocity;
 	}
 	
-	
+	public abstract void collidedWith(Entity other);
+
 }

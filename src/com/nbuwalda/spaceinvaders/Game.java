@@ -17,15 +17,18 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class Game extends Canvas {
-
+	private static final long serialVersionUID = 1L;
+	
 	private static final int LEVEL_COLUMNS = 12;
 	private static final int LEVEL_ROWS = 5;
-	private static final int FIRING_INTERVAL = 500;
+	private static final int FIRING_INTERVAL = 1000;
 	private static final int RIGHT_SHIP_VELOCITY = 300;
 	private static final int LEFT_SHIP_VELOCITY = -300;
-	private static final long serialVersionUID = 1L;
+	private static final int DOWN_SHIP_VELOCITY = 30;
+	private static final int UP_SHIP_VELOCITY = -30;
+	private static final int SHOT_UP_VELOCITY = -50;
+
 	private BufferStrategy strategy;
-	private boolean gameRunning = true;
 	private List<Entity> entities;
 	private List<Entity>removeList;
 	private ShipEntity ship;
@@ -33,8 +36,11 @@ public class Game extends Canvas {
 	private int levelRows;
 	private int levelColumns;
 	private long timeLastFired;
+	private boolean gameRunning = true;
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
+	private boolean upPressed = false;
+	private boolean downPressed = false;
 	private boolean firePressed = false;
 
 	
@@ -95,18 +101,9 @@ public class Game extends Canvas {
 			graphics.dispose();
 			strategy.show();
 			
-			ship.setXVelocity(0);
+			controlPlayerShip();	
+			checkForCollisions();
 			
-			if ((leftPressed) && (!rightPressed)) {
-				ship.setXVelocity(LEFT_SHIP_VELOCITY);
-			} else if ((rightPressed) && (!leftPressed)) {
-				ship.setXVelocity(RIGHT_SHIP_VELOCITY);
-			}
-
-			if (firePressed) {
-				tryToFire();
-			}
-
 			// this goes last
 			try {
 				Thread.sleep(10);
@@ -117,6 +114,38 @@ public class Game extends Canvas {
 
 		}
 
+	}
+
+	private void checkForCollisions() {
+		for (Entity me : entities) {
+			for (Entity him : entities) {
+				if ((me != him) && (me.collidesWith(him))) {
+					me.collidedWith(him);
+					him.collidedWith(me);
+				}
+			}
+		}
+	}
+
+	private void controlPlayerShip() {
+		ship.setXVelocity(0);
+		ship.setYVelocity(0);
+		
+		if ((leftPressed) && (!rightPressed)) {
+			ship.setXVelocity(LEFT_SHIP_VELOCITY);
+		} else if ((rightPressed) && (!leftPressed)) {
+			ship.setXVelocity(RIGHT_SHIP_VELOCITY);
+		}
+
+		if ((upPressed) && (!downPressed)) {
+			ship.setYVelocity(UP_SHIP_VELOCITY);
+		} else if ((downPressed) && (!upPressed)) {
+			ship.setYVelocity(DOWN_SHIP_VELOCITY);
+		}
+		
+		if (firePressed) {
+			tryToFire();
+		}
 	}
 
 	private void drawEntities(Graphics2D graphics) {
@@ -158,7 +187,8 @@ public class Game extends Canvas {
 		}
 		
 		timeLastFired = System.currentTimeMillis();
-		ShotEntity shot = new ShotEntity(this, "sprites/shot.gif", (int)(ship.getXPostion() + 10), (int)(ship.getYPosition() - 30));
+		ShotEntity shot = new ShotEntity(this, "sprites/shot.gif", (int)(ship.getXPosition() + 10), (int)(ship.getYPosition() - 30));
+		shot.setYVelocity(SHOT_UP_VELOCITY);
 		entities.add(shot);
 	}
 	
@@ -172,6 +202,7 @@ public class Game extends Canvas {
 	
 	private class KeyInputHandler extends KeyAdapter {
 
+
 		public void keyPressed(KeyEvent event) {
 			switch (event.getKeyCode()){
 				case KeyEvent.VK_LEFT:
@@ -179,6 +210,12 @@ public class Game extends Canvas {
 					break;
 				case KeyEvent.VK_RIGHT:
 					rightPressed = true;
+					break;
+				case KeyEvent.VK_UP:
+					upPressed = true;
+					break;
+				case KeyEvent.VK_DOWN:
+					downPressed = true;
 					break;
 				case KeyEvent.VK_SPACE:
 					firePressed = true;
@@ -195,6 +232,12 @@ public class Game extends Canvas {
 					break;
 				case KeyEvent.VK_RIGHT:
 					rightPressed = false;
+					break;
+				case KeyEvent.VK_UP:
+					upPressed = false;
+					break;
+				case KeyEvent.VK_DOWN:
+					downPressed = false;
 					break;
 				case KeyEvent.VK_SPACE:
 					firePressed = false;
@@ -218,8 +261,26 @@ public class Game extends Canvas {
 			return rightPressed;
 		}
 
+		public boolean isUpPressed() {
+			return upPressed;
+		}
+		
+		public boolean isDownPressed() {
+			return downPressed;
+		}
+		
 		public boolean isFirePressed() {
 			return firePressed;
 		}
+	}
+
+	public void notifyPlayerDeath() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void notifyAlienKilled() {
+		// TODO Auto-generated method stub
+		
 	}
 }
