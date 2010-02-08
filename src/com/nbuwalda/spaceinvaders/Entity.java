@@ -74,6 +74,15 @@ public abstract class Entity {
 		this.yVelocity = yVelocity;
 	}
 	
+	public void setXPosition(double xPosition) {
+		this.xPosition = xPosition;
+	}
+
+	public void setYPosition(double yPosition) {
+		this.yPosition = yPosition;
+	}
+
 	public abstract void collidedWith(Entity other);
 
+	public abstract void doLogic();
 }

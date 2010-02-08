@@ -21,8 +21,18 @@ public class AlienEntity extends Entity {
 
 	@Override
 	public void collidedWith(Entity other) {
-		// TODO Auto-generated method stub
+		//no logic
+	}
+
+	@Override
+	public void doLogic() {
+		setXVelocity(getXVelocity() * -1);
+		setYPosition(getYPosition() + 10);
 		
+		if (getYPosition() > 570) {
+			game.notifyPlayerDeath();
+		}
+
 	}
 
 	

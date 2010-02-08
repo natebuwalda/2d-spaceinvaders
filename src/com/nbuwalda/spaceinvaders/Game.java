@@ -2,7 +2,6 @@ package com.nbuwalda.spaceinvaders;
 
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
@@ -26,22 +25,26 @@ public class Game extends Canvas {
 	private static final int LEFT_SHIP_VELOCITY = -300;
 	private static final int DOWN_SHIP_VELOCITY = 30;
 	private static final int UP_SHIP_VELOCITY = -30;
-	private static final int SHOT_UP_VELOCITY = -50;
+	private static final int SHOT_UP_VELOCITY = -100;
+	private static final int ALIEN_VELOCITY = -75;
 
 	private BufferStrategy strategy;
 	private List<Entity> entities;
-	private List<Entity>removeList;
+	private List<Entity> removeList;
 	private ShipEntity ship;
 	private int alienCount;
 	private int levelRows;
 	private int levelColumns;
 	private long timeLastFired;
+	private String message = "";
 	private boolean gameRunning = true;
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
 	private boolean upPressed = false;
 	private boolean downPressed = false;
 	private boolean firePressed = false;
+	private boolean waitingForKeyPress = true;
+	private boolean logicRequiredThisLoop = false;
 
 	
 	public Game() {
@@ -94,17 +97,22 @@ public class Game extends Canvas {
 
 			moveEntities(sinceLastLoopTime);
 			drawEntities(graphics);
+			checkForCollisions();
 			
 			entities.removeAll(removeList);
 			removeList.clear();
-
+			
+			performGameLogic();
+			waitAndShowMessages(graphics);
+			
 			graphics.dispose();
 			strategy.show();
 			
 			controlPlayerShip();	
-			checkForCollisions();
+			if (firePressed) {
+				tryToFire();
+			}
 			
-			// this goes last
 			try {
 				Thread.sleep(10);
 			} catch (Exception e) {
@@ -114,6 +122,25 @@ public class Game extends Canvas {
 
 		}
 
+	}
+
+	private void waitAndShowMessages(Graphics2D graphics) {
+		if (waitingForKeyPress) {
+			graphics.setColor(Color.white);
+			graphics.drawString(message,(800 - graphics.getFontMetrics().stringWidth(message))/2, 250);
+			graphics.drawString("Press any key",(800 - graphics.getFontMetrics().stringWidth("Press any key"))/2, 300);
+		}
+	}
+
+	private void performGameLogic() {
+		if (logicRequiredThisLoop) {
+			for (int i=0;i<entities.size();i++) {
+				Entity entity = (Entity) entities.get(i);
+				entity.doLogic();
+			}
+			
+			logicRequiredThisLoop = false;
+		}
 	}
 
 	private void checkForCollisions() {
@@ -143,9 +170,6 @@ public class Game extends Canvas {
 			ship.setYVelocity(DOWN_SHIP_VELOCITY);
 		}
 		
-		if (firePressed) {
-			tryToFire();
-		}
 	}
 
 	private void drawEntities(Graphics2D graphics) {
@@ -155,8 +179,10 @@ public class Game extends Canvas {
 	}
 
 	private void moveEntities(long sinceLastLoopTime) {
-		for (Entity entity : entities) {
-			entity.move(sinceLastLoopTime);
+		if (!waitingForKeyPress) {
+			for (Entity entity : entities) {
+				entity.move(sinceLastLoopTime);
+			}
 		}
 	}
 
@@ -174,6 +200,7 @@ public class Game extends Canvas {
 		for (int row = 0; row < levelRows; row++) {
 			for (int column = 0; column < levelColumns; column++) {
 				Entity alien = new AlienEntity(this,"sprites/alien.gif", (100 + (column * 50)), ((50) + row * 30));
+				alien.setXVelocity(ALIEN_VELOCITY);
 				entities.add(alien);
 				alienCount++;
 
@@ -197,13 +224,53 @@ public class Game extends Canvas {
 	}
 
 	public void updateLogic() {
+		logicRequiredThisLoop = true;
+	}
+	
+	public void notifyPlayerDeath() {
+		message = "Oh no! They got you, try again?";
+		waitingForKeyPress = true;
+	}
+
+	public void notifyWin() {
+		message = "You win!";
+		waitingForKeyPress = true;
+	}
+	
+	public void notifyAlienKilled() {
+		alienCount--;
 		
+		if (alienCount == 0) {
+			notifyWin();
+		}
+		
+		for (Entity entity : entities) {
+			if (entity instanceof AlienEntity) {
+				entity.setXVelocity(entity.getXVelocity() * 1.02);
+			}
+		}
+	}
+	
+	private void startGame() {
+		entities.clear();
+		initEntities();
+		
+		leftPressed = false;
+		rightPressed = false;
+		upPressed = false;
+		downPressed = false;
+		firePressed = false;
 	}
 	
 	private class KeyInputHandler extends KeyAdapter {
 
+		private int pressCount;
 
 		public void keyPressed(KeyEvent event) {
+			if (waitingForKeyPress) {
+				return;
+			}
+			
 			switch (event.getKeyCode()){
 				case KeyEvent.VK_LEFT:
 					leftPressed = true;
@@ -226,6 +293,10 @@ public class Game extends Canvas {
 		}
 		
 		public void keyReleased(KeyEvent event) {
+			if (waitingForKeyPress) {
+				return;
+			}
+			
 			switch (event.getKeyCode()){
 				case KeyEvent.VK_LEFT:
 					leftPressed = false;
@@ -248,39 +319,21 @@ public class Game extends Canvas {
 		}
 		
 		public void keyTyped(KeyEvent e) {
+			if (waitingForKeyPress) {
+				if (pressCount == 1) {
+					waitingForKeyPress = false;
+					startGame();
+					pressCount = 0;
+				} else {
+					pressCount++;
+				}
+			}
+			
 			if (e.getKeyChar() == 27) {
 				System.exit(0);
 			}
 		}
-
-		public boolean isLeftPressed() {
-			return leftPressed;
-		}
-
-		public boolean isRightPressed() {
-			return rightPressed;
-		}
-
-		public boolean isUpPressed() {
-			return upPressed;
-		}
-		
-		public boolean isDownPressed() {
-			return downPressed;
-		}
-		
-		public boolean isFirePressed() {
-			return firePressed;
-		}
 	}
 
-	public void notifyPlayerDeath() {
-		// TODO Auto-generated method stub
-		
-	}
 
-	public void notifyAlienKilled() {
-		// TODO Auto-generated method stub
-		
-	}
 }

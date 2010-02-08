@@ -11,19 +11,17 @@ public class ShipEntity extends Entity {
 
 	@Override
 	public void move(long delta) {
+		// left and right bounds
 		if (getXVelocity() < 0 && getXPosition() < 10) {
-			System.out.println("Hit left bounds");
 			return;
 		} else if (getXVelocity() > 0 && getXPosition() > 750) {
-			System.out.println("Hit right bounds");
 			return;
 		}
 		
+		// up and down bounds
 		if (getYVelocity() < 0 && getYPosition() < 500) {
-			System.out.println("Hit top bounds");
 			return;
 		} else if (getYVelocity() > 0 && getYPosition() > 550) {
-			System.out.println("Hit bottom bounds");
 			return;
 		}
 		
@@ -35,6 +33,11 @@ public class ShipEntity extends Entity {
 		if (other instanceof AlienEntity) {
 			game.notifyPlayerDeath();
 		}
+	}
+
+	@Override
+	public void doLogic() {
+		// no logic
 	}
 
 	

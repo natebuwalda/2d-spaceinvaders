@@ -22,11 +22,15 @@ public class ShotEntity extends Entity {
 	public void collidedWith(Entity other) {
 		if (other instanceof AlienEntity) {
 			game.removeEntity(this);
-			game.removeEntity(other);
-			
+			game.removeEntity(other);	
 			game.notifyAlienKilled();
 		}
 		
+	}
+
+	@Override
+	public void doLogic() {
+		// no logic
 	}
 
 	
