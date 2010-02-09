@@ -32,7 +32,7 @@ public class Game extends Canvas {
 	private static final int LEFT_SHIP_VELOCITY = -300;
 	private static final int DOWN_SHIP_VELOCITY = 30;
 	private static final int UP_SHIP_VELOCITY = -30;
-	private static final int SHOT_UP_VELOCITY = -100;
+	private static final int SHOT_UP_VELOCITY = -200;
 	private static final int ALIEN_VELOCITY = -75;
 
 	private BufferStrategy strategy;
@@ -44,6 +44,7 @@ public class Game extends Canvas {
 	private int levelColumns;
 	private long timeLastFired;
 	private String message = "";
+	private boolean gameStarted = false;
 	private boolean gameRunning = true;
 	private boolean leftPressed = false;
 	private boolean rightPressed = false;
@@ -81,6 +82,7 @@ public class Game extends Canvas {
 		strategy = getBufferStrategy();
 		
 		initEntities();
+		gameStarted = true;
 		
 		addKeyListener(new KeyInputHandler());
 		requestFocus();
@@ -169,9 +171,12 @@ public class Game extends Canvas {
 	}
 
 	private void checkForCollisions() {
-		for (Entity me : entities) {
-			for (Entity him : entities) {
-				if ((me != him) && (me.collidesWith(him))) {
+		for (int p=0; p < entities.size(); p++) {
+			for (int s=p+1; s < entities.size(); s++) {
+				Entity me = (Entity) entities.get(p);
+				Entity him = (Entity) entities.get(s);
+				
+				if (me.collidesWith(him)) {
 					me.collidedWith(him);
 					him.collidedWith(me);
 				}
@@ -260,6 +265,7 @@ public class Game extends Canvas {
 	public void notifyWin() {
 		message = "You win!";
 		waitingForKeyPress = true;
+		gameStarted = false;
 	}
 	
 	public void notifyAlienKilled() {
@@ -348,7 +354,9 @@ public class Game extends Canvas {
 			if (waitingForKeyPress) {
 				if (pressCount == 1) {
 					waitingForKeyPress = false;
-					startGame();
+					if (!gameStarted) {
+						startGame();
+					}
 					pressCount = 0;
 				} else {
 					pressCount++;

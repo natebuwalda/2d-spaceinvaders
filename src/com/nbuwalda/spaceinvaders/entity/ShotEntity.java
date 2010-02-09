@@ -26,8 +26,7 @@ public class ShotEntity extends Entity {
 			game.removeEntity(this);
 			game.removeEntity(other);	
 			game.notifyAlienKilled();
-		}
-		
+		}	
 	}
 
 	@Override
