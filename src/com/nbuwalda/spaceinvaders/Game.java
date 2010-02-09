@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -19,6 +20,7 @@ import com.nbuwalda.spaceinvaders.entity.AlienEntity;
 import com.nbuwalda.spaceinvaders.entity.Entity;
 import com.nbuwalda.spaceinvaders.entity.ShipEntity;
 import com.nbuwalda.spaceinvaders.entity.ShotEntity;
+import com.nbuwalda.spaceinvaders.timer.SystemTimer;
 
 public class Game extends Canvas {
 	private static final long serialVersionUID = 1L;
@@ -50,10 +52,13 @@ public class Game extends Canvas {
 	private boolean firePressed = false;
 	private boolean waitingForKeyPress = true;
 	private boolean logicRequiredThisLoop = false;
+	private long lastFpsTime;
+	private int fps;
+	private JFrame mainFrame;
 
 	
 	public Game() {
-		JFrame mainFrame = new JFrame("Space Invaders");
+		mainFrame = new JFrame("Space Invaders");
 
 		JPanel mainPanel = (JPanel) mainFrame.getContentPane();
 		mainPanel.setPreferredSize(new Dimension(800, 600));
@@ -93,19 +98,26 @@ public class Game extends Canvas {
 		long lastLoopTime = System.currentTimeMillis();
 
 		while (gameRunning) {
-			long sinceLastLoopTime = System.currentTimeMillis() - lastLoopTime;
+			long frameTime = System.currentTimeMillis() - lastLoopTime;
+			SystemTimer.addFrameTime(frameTime);
 			lastLoopTime = System.currentTimeMillis();
 			
 			Graphics2D graphics = (Graphics2D) strategy.getDrawGraphics();
 			graphics.setBackground(Color.BLACK);
 			graphics.fillRect(0, 0, 800, 600);
 
-			moveEntities(sinceLastLoopTime);
-			drawEntities(graphics);
-			checkForCollisions();
+			calculateFps();
 			
-			entities.removeAll(removeList);
-			removeList.clear();
+			try {
+				moveEntities(SystemTimer.getAverageFrameTime());
+				drawEntities(graphics);
+				checkForCollisions();
+				
+				entities.removeAll(removeList);
+				removeList.clear();
+			} catch (ConcurrentModificationException cme) {
+				// do nothing for now
+			}
 			
 			performGameLogic();
 			waitAndShowMessages(graphics);
@@ -118,15 +130,23 @@ public class Game extends Canvas {
 				tryToFire();
 			}
 			
-			try {
-				Thread.sleep(10);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(0);
+			long sleepTime = lastLoopTime + 10 - System.currentTimeMillis();
+			if (sleepTime > 0) {
+				SystemTimer.sleep(sleepTime);
 			}
-
 		}
 
+	}
+
+	private void calculateFps() {
+		lastFpsTime += SystemTimer.getAverageFrameTime();
+		fps++;
+		
+		if (lastFpsTime >= 1000) {
+			mainFrame.setTitle("Space Invaders (FPS: " + fps +")");
+			lastFpsTime = 0;
+			fps = 0;
+		}
 	}
 
 	private void waitAndShowMessages(Graphics2D graphics) {
@@ -208,9 +228,9 @@ public class Game extends Canvas {
 				alien.setXVelocity(ALIEN_VELOCITY);
 				entities.add(alien);
 				alienCount++;
-
 			}
 		}
+		System.out.println("alien count " + alienCount);
 	}
 
 	private void tryToFire() {
@@ -244,6 +264,7 @@ public class Game extends Canvas {
 	
 	public void notifyAlienKilled() {
 		alienCount--;
+		System.out.println("alien count " + alienCount);
 		
 		if (alienCount == 0) {
 			notifyWin();
@@ -269,7 +290,7 @@ public class Game extends Canvas {
 	
 	private class KeyInputHandler extends KeyAdapter {
 
-		private int pressCount;
+		private int pressCount = 1;
 
 		public void keyPressed(KeyEvent event) {
 			if (waitingForKeyPress) {
