@@ -1,4 +1,4 @@
-package com.nbuwalda.spaceinvaders.sprite;
+package com.nbuwalda.spaceinvaders.resources;
 
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -14,15 +14,15 @@ import javax.imageio.ImageIO;
 public class SpriteStore {
 
 	private static SpriteStore single = new SpriteStore();
-	private Map<String, Sprite> sprites = new HashMap<String, Sprite>();
+	private Map<String, OldSprite> sprites = new HashMap<String, OldSprite>();
 	
 	public static SpriteStore getStore() {
 		return single;
 	}
 	
-	public Sprite getSprite(String ref) {
+	public OldSprite getSprite(String ref) {
 		URL url = this.getClass().getClassLoader().getResource(ref);
-		Sprite sprite = null;
+		OldSprite sprite = null;
 		
 		if (sprites.get(ref) == null) {
 			try {
@@ -31,7 +31,7 @@ public class SpriteStore {
 				Image image = gc.createCompatibleImage(sourceImage.getWidth(), sourceImage.getHeight(), Transparency.BITMASK);
 				image.getGraphics().drawImage(sourceImage, 0, 0, null);
 	
-				sprite = new Sprite(image);
+				sprite = new OldSprite(image);
 				sprites.put(ref, sprite);
 			} catch (Exception e) {
 				System.err.println("ref = " + ref);

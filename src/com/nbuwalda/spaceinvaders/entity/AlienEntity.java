@@ -3,7 +3,7 @@ package com.nbuwalda.spaceinvaders.entity;
 import java.util.Random;
 
 import com.nbuwalda.spaceinvaders.Game;
-import com.nbuwalda.spaceinvaders.sprite.SpriteStore;
+import com.nbuwalda.spaceinvaders.resources.SpriteStore;
 
 public class AlienEntity extends Entity {
 

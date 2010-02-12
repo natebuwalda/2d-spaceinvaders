@@ -56,6 +56,7 @@ public class Game extends Canvas {
 	private boolean firePressed = false;
 	private boolean waitingForKeyPress = true;
 	private boolean logicRequiredThisLoop = false;
+	private GameWindowCallback callback;
 	private long lastFpsTime;
 	private int fps;
 	private JFrame mainFrame;

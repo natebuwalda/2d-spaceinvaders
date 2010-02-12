@@ -5,8 +5,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nbuwalda.spaceinvaders.sprite.Sprite;
-import com.nbuwalda.spaceinvaders.sprite.SpriteStore;
+import com.nbuwalda.spaceinvaders.resources.OldSprite;
+import com.nbuwalda.spaceinvaders.resources.SpriteStore;
 
 public abstract class Entity {
 
@@ -14,8 +14,8 @@ public abstract class Entity {
 	private double yPosition = 0.0D;
 	private double xVelocity = 0.0D;
 	private double yVelocity = 0.0D;
-	private Sprite sprite;
-	private List<Sprite> frames = new ArrayList<Sprite>();
+	private OldSprite sprite;
+	private List<OldSprite> frames = new ArrayList<OldSprite>();
 	private long lastFrameChange = 0L;
 	private int frameDuration = 250;
 	private int currentFrameNumber = 0;
@@ -71,7 +71,7 @@ public abstract class Entity {
 		return yVelocity;
 	}
 
-	public Sprite getSprite() {
+	public OldSprite getSprite() {
 		return sprite;
 	}
 	
@@ -91,15 +91,15 @@ public abstract class Entity {
 		this.yPosition = yPosition;
 	}
 
-	public void setSprite(Sprite sprite) {
+	public void setSprite(OldSprite sprite) {
 		this.sprite = sprite;
 	}
 
-	public List<Sprite> getFrames() {
+	public List<OldSprite> getFrames() {
 		return frames;
 	}
 
-	public void setFrames(List<Sprite> frames) {
+	public void setFrames(List<OldSprite> frames) {
 		this.frames = frames;
 	}
 

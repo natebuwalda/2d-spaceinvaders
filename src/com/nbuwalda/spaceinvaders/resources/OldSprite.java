@@ -1,13 +1,13 @@
-package com.nbuwalda.spaceinvaders.sprite;
+package com.nbuwalda.spaceinvaders.resources;
 
 import java.awt.Graphics;
 import java.awt.Image;
 
-public class Sprite {
+public class OldSprite {
 
 	private Image image;
 	
-	public Sprite(Image image) {
+	public OldSprite(Image image) {
 		this.image = image;
 	}
 	
