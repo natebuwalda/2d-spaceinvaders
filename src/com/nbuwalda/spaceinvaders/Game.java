@@ -25,6 +25,7 @@ import com.nbuwalda.spaceinvaders.timer.SystemTimer;
 public class Game extends Canvas {
 	private static final long serialVersionUID = 1L;
 	
+	private static final int MAX_ALIEN_SHOTS = 3;
 	private static final int LEVEL_COLUMNS = 12;
 	private static final int LEVEL_ROWS = 5;
 	private static final int FIRING_INTERVAL = 1000;
@@ -40,6 +41,8 @@ public class Game extends Canvas {
 	private List<Entity> removeList;
 	private ShipEntity ship;
 	private int alienCount;
+	private int alienShotCount;
+	private int alienShotMax;
 	private int levelRows;
 	private int levelColumns;
 	private long timeLastFired;
@@ -224,6 +227,8 @@ public class Game extends Canvas {
 		entities.add(ship);
 		
 		alienCount = 0;
+		alienShotCount = 0;
+		alienShotMax = MAX_ALIEN_SHOTS;
 		levelRows = LEVEL_ROWS;
 		levelColumns = LEVEL_COLUMNS;
 		
@@ -260,6 +265,7 @@ public class Game extends Canvas {
 	public void notifyPlayerDeath() {
 		message = "Oh no! They got you, try again?";
 		waitingForKeyPress = true;
+		gameStarted = false;
 	}
 
 	public void notifyWin() {
@@ -270,7 +276,6 @@ public class Game extends Canvas {
 	
 	public void notifyAlienKilled() {
 		alienCount--;
-		System.out.println("alien count " + alienCount);
 		
 		if (alienCount == 0) {
 			notifyWin();
@@ -294,6 +299,29 @@ public class Game extends Canvas {
 		firePressed = false;
 	}
 	
+	
+	public List<Entity> getEntities() {
+		return entities;
+	}
+
+	public int getAlienShotCount() {
+		return alienShotCount;
+	}
+
+	public void setAlienShotCount(int alienShotCount) {
+		this.alienShotCount = alienShotCount;
+	}
+
+	public static int getAlienVelocity() {
+		return ALIEN_VELOCITY;
+	}
+
+	public int getAlienShotMax() {
+		return alienShotMax;
+	}
+
+
+
 	private class KeyInputHandler extends KeyAdapter {
 
 		private int pressCount = 1;

@@ -2,6 +2,8 @@ package com.nbuwalda.spaceinvaders.entity;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.nbuwalda.spaceinvaders.sprite.Sprite;
 import com.nbuwalda.spaceinvaders.sprite.SpriteStore;
@@ -13,6 +15,10 @@ public abstract class Entity {
 	private double xVelocity = 0.0D;
 	private double yVelocity = 0.0D;
 	private Sprite sprite;
+	private List<Sprite> frames = new ArrayList<Sprite>();
+	private long lastFrameChange = 0L;
+	private int frameDuration = 250;
+	private int currentFrameNumber = 0;
 	
 	public Entity(String imageRef, int xStartPosition, int yStartPosition) {
 		this.sprite = SpriteStore.getStore().getSprite(imageRef);
@@ -83,6 +89,42 @@ public abstract class Entity {
 
 	public void setYPosition(double yPosition) {
 		this.yPosition = yPosition;
+	}
+
+	public void setSprite(Sprite sprite) {
+		this.sprite = sprite;
+	}
+
+	public List<Sprite> getFrames() {
+		return frames;
+	}
+
+	public void setFrames(List<Sprite> frames) {
+		this.frames = frames;
+	}
+
+	public long getLastFrameChange() {
+		return lastFrameChange;
+	}
+
+	public void setLastFrameChange(long lastFrameChange) {
+		this.lastFrameChange = lastFrameChange;
+	}
+
+	public int getFrameDuration() {
+		return frameDuration;
+	}
+
+	public void setFrameDuration(int frameDuration) {
+		this.frameDuration = frameDuration;
+	}
+
+	public int getCurrentFrameNumber() {
+		return currentFrameNumber;
+	}
+
+	public void setCurrentFrameNumber(int currentFrameNumber) {
+		this.currentFrameNumber = currentFrameNumber;
 	}
 
 	public abstract void collidedWith(Entity other);
