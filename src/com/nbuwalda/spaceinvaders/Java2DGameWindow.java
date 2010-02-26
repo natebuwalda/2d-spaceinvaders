@@ -7,7 +7,7 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 
-public class Java2DGameWindow extends Canvas{
+public class Java2DGameWindow extends Canvas implements GameWindow{
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -39,5 +39,35 @@ public class Java2DGameWindow extends Canvas{
 			strategy.show();
 			
 		}
+	}
+
+	@Override
+	public boolean isKeyPressed(int keyCode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setGameWindowCallback(GameWindowCallback callback) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setResolution(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTitle(String title) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startRendering() {
+		// TODO Auto-generated method stub
+		
 	}
 }

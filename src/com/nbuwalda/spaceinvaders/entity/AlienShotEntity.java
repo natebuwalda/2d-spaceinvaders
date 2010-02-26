@@ -1,14 +1,16 @@
 package com.nbuwalda.spaceinvaders.entity;
 
 import com.nbuwalda.spaceinvaders.Game;
+import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
 
-public class AlienShotEntity extends Entity {
+public class AlienShotEntity extends AbstractEntity {
 
 	private Game game;
 
 	public AlienShotEntity(Game game, String imageRef, int xStartPosition, int yStartPosition) {
 		super(imageRef, xStartPosition, yStartPosition);
 		this.game = game;
+		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/shot.gif"));
 	}
 
 	@Override
@@ -22,7 +24,7 @@ public class AlienShotEntity extends Entity {
 	}
 
 	@Override
-	public void collidedWith(Entity other) {
+	public void collidedWith(AbstractEntity other) {
 		if (other instanceof ShipEntity) {
 			game.removeEntity(this);
 			game.removeEntity(other);	
@@ -37,3 +39,4 @@ public class AlienShotEntity extends Entity {
 
 	
 }
+

@@ -3,9 +3,9 @@ package com.nbuwalda.spaceinvaders.entity;
 import java.util.Random;
 
 import com.nbuwalda.spaceinvaders.Game;
-import com.nbuwalda.spaceinvaders.resources.SpriteStore;
+import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
 
-public class AlienEntity extends Entity {
+public class AlienEntity extends AbstractEntity {
 
 	private Game game;
 	private boolean tryToFire = false;
@@ -13,10 +13,10 @@ public class AlienEntity extends Entity {
 	public AlienEntity(Game game, String imageRef, int xStartPosition, int yStartPosition) {
 		super(imageRef, xStartPosition, yStartPosition);
 		this.game = game;
-		this.getFrames().add(SpriteStore.getStore().getSprite("sprites/alien.gif"));
-		this.getFrames().add(SpriteStore.getStore().getSprite("sprites/alien2.gif"));
-		this.getFrames().add(SpriteStore.getStore().getSprite("sprites/alien.gif"));
-		this.getFrames().add(SpriteStore.getStore().getSprite("sprites/alien3.gif"));
+		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien.gif"));
+		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien2.gif"));
+		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien.gif"));
+		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien3.gif"));
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class AlienEntity extends Entity {
 	}
 
 	@Override
-	public void collidedWith(Entity other) {
+	public void collidedWith(AbstractEntity other) {
 		//no logic
 	}
 

@@ -17,9 +17,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.nbuwalda.spaceinvaders.entity.AlienEntity;
-import com.nbuwalda.spaceinvaders.entity.Entity;
+import com.nbuwalda.spaceinvaders.entity.AbstractEntity;
 import com.nbuwalda.spaceinvaders.entity.ShipEntity;
 import com.nbuwalda.spaceinvaders.entity.ShotEntity;
+import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
 import com.nbuwalda.spaceinvaders.timer.SystemTimer;
 
 public class Game extends Canvas {
@@ -37,8 +38,8 @@ public class Game extends Canvas {
 	private static final int ALIEN_VELOCITY = -75;
 
 	private BufferStrategy strategy;
-	private List<Entity> entities;
-	private List<Entity> removeList;
+	private List<AbstractEntity> entities;
+	private List<AbstractEntity> removeList;
 	private ShipEntity ship;
 	private int alienCount;
 	private int alienShotCount;
@@ -56,6 +57,7 @@ public class Game extends Canvas {
 	private boolean firePressed = false;
 	private boolean waitingForKeyPress = true;
 	private boolean logicRequiredThisLoop = false;
+	private GameWindow window;
 	private GameWindowCallback callback;
 	private long lastFpsTime;
 	private int fps;
@@ -63,33 +65,12 @@ public class Game extends Canvas {
 
 	
 	public Game() {
-		mainFrame = new JFrame("Space Invaders");
-
-		JPanel mainPanel = (JPanel) mainFrame.getContentPane();
-		mainPanel.setPreferredSize(new Dimension(800, 600));
-		mainPanel.setLayout(null);
-
-		setBounds(0, 0, 800, 600);
-		mainPanel.add(this);
-
-		setIgnoreRepaint(true);
-		mainFrame.pack();
-		mainFrame.setResizable(false);
-		mainFrame.setVisible(true);
-		mainFrame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		});
+		ResourceFactory.getFactory().setRenderingType(ResourceFactory.JAVA2D);
 		
-		createBufferStrategy(2);
-		strategy = getBufferStrategy();
-		
-		initEntities();
-		gameStarted = true;
-		
-		addKeyListener(new KeyInputHandler());
-		requestFocus();
+		window = ResourceFactory.getFactory().getGameWindow();
+		window.setResolution(800, 600);
+		window.setGameWindowCallback(callback);
+		window.setTitle("Space Invaders");
 	}
 
 	/**
@@ -166,7 +147,7 @@ public class Game extends Canvas {
 	private void performGameLogic() {
 		if (logicRequiredThisLoop) {
 			for (int i=0;i<entities.size();i++) {
-				Entity entity = (Entity) entities.get(i);
+				AbstractEntity entity = (AbstractEntity) entities.get(i);
 				entity.doLogic();
 			}
 			
@@ -177,8 +158,8 @@ public class Game extends Canvas {
 	private void checkForCollisions() {
 		for (int p=0; p < entities.size(); p++) {
 			for (int s=p+1; s < entities.size(); s++) {
-				Entity me = (Entity) entities.get(p);
-				Entity him = (Entity) entities.get(s);
+				AbstractEntity me = (AbstractEntity) entities.get(p);
+				AbstractEntity him = (AbstractEntity) entities.get(s);
 				
 				if (me.collidesWith(him)) {
 					me.collidedWith(him);
@@ -207,22 +188,22 @@ public class Game extends Canvas {
 	}
 
 	private void drawEntities(Graphics2D graphics) {
-		for (Entity entity : entities) {
+		for (AbstractEntity entity : entities) {
 			entity.draw(graphics);
 		}
 	}
 
 	private void moveEntities(long sinceLastLoopTime) {
 		if (!waitingForKeyPress) {
-			for (Entity entity : entities) {
+			for (AbstractEntity entity : entities) {
 				entity.move(sinceLastLoopTime);
 			}
 		}
 	}
 
 	private void initEntities() {
-		entities = new ArrayList<Entity>();
-		removeList = new ArrayList<Entity>();
+		entities = new ArrayList<AbstractEntity>();
+		removeList = new ArrayList<AbstractEntity>();
 		
 		ship = new ShipEntity(this,"sprites/ship.gif",370,550);
 		entities.add(ship);
@@ -235,7 +216,7 @@ public class Game extends Canvas {
 		
 		for (int row = 0; row < levelRows; row++) {
 			for (int column = 0; column < levelColumns; column++) {
-				Entity alien = new AlienEntity(this,"sprites/alien.gif", (100 + (column * 50)), ((50) + row * 30));
+				AbstractEntity alien = new AlienEntity(this,"sprites/alien.gif", (100 + (column * 50)), ((50) + row * 30));
 				alien.setXVelocity(ALIEN_VELOCITY);
 				entities.add(alien);
 				alienCount++;
@@ -255,7 +236,7 @@ public class Game extends Canvas {
 		entities.add(shot);
 	}
 	
-	public void removeEntity(Entity entity) {
+	public void removeEntity(AbstractEntity entity) {
 		removeList.add(entity);
 	}
 
@@ -282,7 +263,7 @@ public class Game extends Canvas {
 			notifyWin();
 		}
 		
-		for (Entity entity : entities) {
+		for (AbstractEntity entity : entities) {
 			if (entity instanceof AlienEntity) {
 				entity.setXVelocity(entity.getXVelocity() * 1.02);
 			}
@@ -301,7 +282,7 @@ public class Game extends Canvas {
 	}
 	
 	
-	public List<Entity> getEntities() {
+	public List<AbstractEntity> getEntities() {
 		return entities;
 	}
 
