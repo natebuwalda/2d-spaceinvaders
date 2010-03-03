@@ -1,4 +1,4 @@
-package com.nbuwalda.spaceinvaders.resources;
+package com.nbuwalda.game.resources;
 
 import com.nbuwalda.spaceinvaders.GameWindow;
 import com.nbuwalda.spaceinvaders.resources.java2d.Java2DGameWindow;

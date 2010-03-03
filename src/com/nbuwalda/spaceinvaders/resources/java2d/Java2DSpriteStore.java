@@ -12,7 +12,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import com.nbuwalda.spaceinvaders.resources.Sprite;
+import com.nbuwalda.game.resources.Sprite;
 
 public class Java2DSpriteStore {
 

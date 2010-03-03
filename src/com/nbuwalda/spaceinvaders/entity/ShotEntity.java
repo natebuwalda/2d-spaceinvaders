@@ -1,8 +1,9 @@
 package com.nbuwalda.spaceinvaders.entity;
 
+import com.nbuwalda.game.entity.AbstractEntity;
 import com.nbuwalda.spaceinvaders.Game;
 
-public class ShotEntity extends Entity {
+public class ShotEntity extends AbstractEntity {
 	private double moveSpeed = -300;
 	private Game game;
 	private boolean used = false;
@@ -24,7 +25,7 @@ public class ShotEntity extends Entity {
 		}
 	}
 
-	public void collidedWith(Entity other) {
+	public void collidedWith(AbstractEntity other) {
 		if (used) {
 			return;
 		}

@@ -1,11 +1,11 @@
-package com.nbuwalda.spaceinvaders.entity;
+package com.nbuwalda.game.entity;
 
 import java.awt.Rectangle;
 
-import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
-import com.nbuwalda.spaceinvaders.resources.Sprite;
+import com.nbuwalda.game.resources.ResourceFactory;
+import com.nbuwalda.game.resources.Sprite;
 
-public abstract class Entity {
+public abstract class AbstractEntity {
 	protected double x;
 	protected double y;
 	protected Sprite sprite;
@@ -14,14 +14,13 @@ public abstract class Entity {
 	private Rectangle me = new Rectangle();
 	private Rectangle him = new Rectangle();
 
-	public Entity(String ref, int x, int y) {
+	public AbstractEntity(String ref, int x, int y) {
 		this.sprite = ResourceFactory.get().getSprite(ref);
 		this.x = x;
 		this.y = y;
 	}
 
 	public void move(long delta) {
-		// update the location of the entity based on move speeds
 		x += (delta * dx) / 1000;
 		y += (delta * dy) / 1000;
 	}
@@ -57,7 +56,7 @@ public abstract class Entity {
 		return (int) y;
 	}
 
-	public boolean collidesWith(Entity other) {
+	public boolean collidesWith(AbstractEntity other) {
 		me.setBounds((int) x, (int) y, sprite.getWidth(), sprite.getHeight());
 		him.setBounds((int) other.x, (int) other.y, other.sprite.getWidth(),
 				other.sprite.getHeight());
@@ -65,5 +64,5 @@ public abstract class Entity {
 		return me.intersects(him);
 	}
 
-	public abstract void collidedWith(Entity other);
+	public abstract void collidedWith(AbstractEntity other);
 }

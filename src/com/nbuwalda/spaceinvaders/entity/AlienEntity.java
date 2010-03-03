@@ -1,10 +1,11 @@
 package com.nbuwalda.spaceinvaders.entity;
 
+import com.nbuwalda.game.entity.AbstractEntity;
+import com.nbuwalda.game.resources.ResourceFactory;
+import com.nbuwalda.game.resources.Sprite;
 import com.nbuwalda.spaceinvaders.Game;
-import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
-import com.nbuwalda.spaceinvaders.resources.Sprite;
 
-public class AlienEntity extends Entity {
+public class AlienEntity extends AbstractEntity {
 	private double moveSpeed = 75;
 	private Game game;
 	private Sprite[] frames = new Sprite[4];
@@ -62,7 +63,7 @@ public class AlienEntity extends Entity {
 	}
 
 
-	public void collidedWith(Entity other) {
+	public void collidedWith(AbstractEntity other) {
 		
 	}
 }

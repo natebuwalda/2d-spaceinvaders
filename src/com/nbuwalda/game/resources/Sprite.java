@@ -1,4 +1,4 @@
-package com.nbuwalda.spaceinvaders.resources;
+package com.nbuwalda.game.resources;
 
 
 public interface Sprite {

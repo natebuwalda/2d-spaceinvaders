@@ -1,8 +1,9 @@
 package com.nbuwalda.spaceinvaders.entity;
 
+import com.nbuwalda.game.entity.AbstractEntity;
 import com.nbuwalda.spaceinvaders.Game;
 
-public class ShipEntity extends Entity {
+public class ShipEntity extends AbstractEntity {
 
 	private Game game;
 
@@ -23,7 +24,7 @@ public class ShipEntity extends Entity {
 		super.move(delta);
 	}
 
-	public void collidedWith(Entity other) {
+	public void collidedWith(AbstractEntity other) {
 		if (other instanceof AlienEntity) {
 			game.notifyDeath();
 		}

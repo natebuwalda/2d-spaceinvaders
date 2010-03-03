@@ -2,7 +2,7 @@ package com.nbuwalda.spaceinvaders.resources.java2d;
 
 import java.awt.Image;
 
-import com.nbuwalda.spaceinvaders.resources.Sprite;
+import com.nbuwalda.game.resources.Sprite;
 
 public class Java2DSprite implements Sprite {
 	private Image image;

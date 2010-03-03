@@ -7,12 +7,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.nbuwalda.game.entity.AbstractEntity;
+import com.nbuwalda.game.resources.ResourceFactory;
+import com.nbuwalda.game.resources.Sprite;
 import com.nbuwalda.spaceinvaders.entity.AlienEntity;
-import com.nbuwalda.spaceinvaders.entity.Entity;
 import com.nbuwalda.spaceinvaders.entity.ShipEntity;
 import com.nbuwalda.spaceinvaders.entity.ShotEntity;
-import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
-import com.nbuwalda.spaceinvaders.resources.Sprite;
 import com.nbuwalda.spaceinvaders.timer.SystemTimer;
 
 public class Game extends Canvas implements GameWindowCallback {
@@ -30,9 +30,9 @@ public class Game extends Canvas implements GameWindowCallback {
 	private static final int SHOT_UP_VELOCITY = -200;
 	private static final int ALIEN_VELOCITY = -75;
 
-	private List<Entity> entities = new ArrayList<Entity>();
-	private List<Entity> removeList = new ArrayList<Entity>();
-	private Entity ship;
+	private List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
+	private List<AbstractEntity> removeList = new ArrayList<AbstractEntity>();
+	private AbstractEntity ship;
 	private Sprite message;
 	private GameWindow window;
 	private Sprite pressAnyKey;
@@ -84,7 +84,7 @@ public class Game extends Canvas implements GameWindowCallback {
 		alienCount = 0;
 		for (int row = 0; row < 5; row++) {
 			for (int x = 0; x < 12; x++) {
-				Entity alien = new AlienEntity(this, 100 + (x * 50),
+				AbstractEntity alien = new AlienEntity(this, 100 + (x * 50),
 						(50) + row * 30);
 				entities.add(alien);
 				alienCount++;
@@ -96,7 +96,7 @@ public class Game extends Canvas implements GameWindowCallback {
 		logicRequiredThisLoop = true;
 	}
 
-	public void removeEntity(Entity entity) {
+	public void removeEntity(AbstractEntity entity) {
 		removeList.add(entity);
 	}
 
@@ -118,7 +118,7 @@ public class Game extends Canvas implements GameWindowCallback {
 		}
 
 		for (int i = 0; i < entities.size(); i++) {
-			Entity entity = (Entity) entities.get(i);
+			AbstractEntity entity = (AbstractEntity) entities.get(i);
 
 			if (entity instanceof AlienEntity) {
 				entity
@@ -157,21 +157,21 @@ public class Game extends Canvas implements GameWindowCallback {
 
 		if (!waitingForKeyPress) {
 			for (int i = 0; i < entities.size(); i++) {
-				Entity entity = (Entity) entities.get(i);
+				AbstractEntity entity = (AbstractEntity) entities.get(i);
 				entity.move(SystemTimer.getAverageFrameTime());
 			}
 		}
 
 		for (int i = 0; i < entities.size(); i++) {
-			Entity entity = (Entity) entities.get(i);
+			AbstractEntity entity = (AbstractEntity) entities.get(i);
 
 			entity.draw();
 		}
 
 		for (int p = 0; p < entities.size(); p++) {
 			for (int s = p + 1; s < entities.size(); s++) {
-				Entity me = (Entity) entities.get(p);
-				Entity him = (Entity) entities.get(s);
+				AbstractEntity me = (AbstractEntity) entities.get(p);
+				AbstractEntity him = (AbstractEntity) entities.get(s);
 
 				if (me.collidesWith(him)) {
 					me.collidedWith(him);
@@ -185,7 +185,7 @@ public class Game extends Canvas implements GameWindowCallback {
 
 		if (logicRequiredThisLoop) {
 			for (int i = 0; i < entities.size(); i++) {
-				Entity entity = (Entity) entities.get(i);
+				AbstractEntity entity = (AbstractEntity) entities.get(i);
 				entity.doLogic();
 			}
 

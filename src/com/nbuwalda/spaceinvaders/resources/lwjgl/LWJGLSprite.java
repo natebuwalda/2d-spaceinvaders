@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.lwjgl.opengl.GL11;
 
-import com.nbuwalda.spaceinvaders.resources.Sprite;
+import com.nbuwalda.game.resources.Sprite;
 
 public class LWJGLSprite implements Sprite {
 
