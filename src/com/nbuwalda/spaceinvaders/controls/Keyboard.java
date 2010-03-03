@@ -31,35 +31,35 @@ public class Keyboard {
 	private static class KeyHandler extends KeyAdapter implements
 			AWTEventListener {
 
-		public void keyPressed(KeyEvent event) {
-			if (event.isConsumed()) {
+		public void keyPressed(KeyEvent e) {
+			if (e.isConsumed()) {
 				return;
 			}
-			keys[event.getKeyCode()] = true;
+			keys[e.getKeyCode()] = true;
 		}
 
-		public void keyReleased(KeyEvent event) {
-			if (event.isConsumed()) {
+		public void keyReleased(KeyEvent e) {
+			if (e.isConsumed()) {
 				return;
 			}
 
 			KeyEvent nextPress = (KeyEvent) Toolkit.getDefaultToolkit()
 					.getSystemEventQueue().peekEvent(KeyEvent.KEY_PRESSED);
 
-			if ((nextPress == null) || (nextPress.getWhen() != event.getWhen())
-					|| (nextPress.getKeyCode() != event.getKeyCode())) {
-				keys[event.getKeyCode()] = false;
+			if ((nextPress == null) || (nextPress.getWhen() != e.getWhen())) {
+				keys[e.getKeyCode()] = false;
+			}
+
+		}
+
+		public void eventDispatched(AWTEvent e) {
+			if (e.getID() == KeyEvent.KEY_PRESSED) {
+				keyPressed((KeyEvent) e);
+			}
+			if (e.getID() == KeyEvent.KEY_RELEASED) {
+				keyReleased((KeyEvent) e);
 			}
 		}
 
-		@Override
-		public void eventDispatched(AWTEvent event) {
-			if (event.getID() == KeyEvent.KEY_PRESSED) {
-              	keyPressed((KeyEvent) event);
-          	}
-          	if (event.getID() == KeyEvent.KEY_RELEASED) {
-              	keyReleased((KeyEvent) event);
-            }
-		}
 	}
 }

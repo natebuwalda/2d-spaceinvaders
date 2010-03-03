@@ -1,41 +1,40 @@
 package com.nbuwalda.spaceinvaders.entity;
 
 import com.nbuwalda.spaceinvaders.Game;
-import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
 
-public class ShotEntity extends AbstractEntity {
-
+public class ShotEntity extends Entity {
+	private double moveSpeed = -300;
 	private Game game;
+	private boolean used = false;
 
-	public ShotEntity(Game game, String imageRef, int xStartPosition, int yStartPosition) {
-		super(imageRef, xStartPosition, yStartPosition);
+	public ShotEntity(Game game, String sprite, int x, int y) {
+		super(sprite, x, y);
+
 		this.game = game;
-		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/shot.gif"));
+
+		dy = moveSpeed;
 	}
 
-	@Override
+
 	public void move(long delta) {
 		super.move(delta);
-		
-		if (getYPosition() < -100) {
+
+		if (y < -100) {
 			game.removeEntity(this);
 		}
 	}
 
-	@Override
-	public void collidedWith(AbstractEntity other) {
+	public void collidedWith(Entity other) {
+		if (used) {
+			return;
+		}
+
 		if (other instanceof AlienEntity) {
 			game.removeEntity(this);
-			game.removeEntity(other);	
+			game.removeEntity(other);
+
 			game.notifyAlienKilled();
-		}	
+			used = true;
+		}
 	}
-
-	@Override
-	public void doLogic() {
-		// no logic
-	}
-
-	
 }
-

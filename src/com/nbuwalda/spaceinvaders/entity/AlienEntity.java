@@ -1,77 +1,68 @@
 package com.nbuwalda.spaceinvaders.entity;
 
-import java.util.Random;
-
 import com.nbuwalda.spaceinvaders.Game;
 import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
+import com.nbuwalda.spaceinvaders.resources.Sprite;
 
-public class AlienEntity extends AbstractEntity {
-
+public class AlienEntity extends Entity {
+	private double moveSpeed = 75;
 	private Game game;
-	private boolean tryToFire = false;
-	
-	public AlienEntity(Game game, String imageRef, int xStartPosition, int yStartPosition) {
-		super(imageRef, xStartPosition, yStartPosition);
+	private Sprite[] frames = new Sprite[4];
+	private long lastFrameChange;
+	private long frameDuration = 250;
+	private int frameNumber;
+
+	public AlienEntity(Game game, int x, int y) {
+		super("default-sprites/alien.gif", x, y);
+
+		frames[0] = sprite;
+		frames[1] = ResourceFactory.get().getSprite("default-sprites/alien2.gif");
+		frames[2] = sprite;
+		frames[3] = ResourceFactory.get().getSprite("default-sprites/alien3.gif");
+
 		this.game = game;
-		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien.gif"));
-		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien2.gif"));
-		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien.gif"));
-		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/alien3.gif"));
+		dx = -moveSpeed;
 	}
 
-	@Override
 	public void move(long delta) {
-		setLastFrameChange(getLastFrameChange() + delta);
-		if (getLastFrameChange() > getFrameDuration()) {
-			setLastFrameChange(0);
+		lastFrameChange += delta;
 
-			setCurrentFrameNumber(getCurrentFrameNumber() + 1);
-			if (getCurrentFrameNumber() >= getFrames().size()) {
-				setCurrentFrameNumber(0);
+		if (lastFrameChange > frameDuration) {
+			// reset our frame change time counter
+			lastFrameChange = 0;
+
+			// update the frame
+			frameNumber++;
+			if (frameNumber >= frames.length) {
+				frameNumber = 0;
 			}
-			
-			setSprite(getFrames().get(getCurrentFrameNumber()));
+
+			sprite = frames[frameNumber];
 		}
-		
-		if ((getXVelocity() < 0 && getXPosition() < 10)
-				|| (getXVelocity() > 0 && getXPosition() > 750)) {
+
+		if ((dx < 0) && (x < 10)) {
 			game.updateLogic();
 		}
-		
-		int chanceToFire = 5;
-		Random randomCheck = new Random();
-		if (randomCheck.nextInt(100) < chanceToFire) {
-			tryToFire = true;
+
+		if ((dx > 0) && (x > 750)) {
 			game.updateLogic();
 		}
-		
+
 		super.move(delta);
 	}
 
-	@Override
-	public void collidedWith(AbstractEntity other) {
-		//no logic
-	}
 
-	@Override
 	public void doLogic() {
-		if ((getXVelocity() < 0 && getXPosition() < 10)
-				|| (getXVelocity() > 0 && getXPosition() > 750)) {
-			setXVelocity(getXVelocity() * -1);
-			setYPosition(getYPosition() + 10);
-			
-			if (getYPosition() > 570) {
-				game.notifyPlayerDeath();
-			}
-		}
-		
-		if (tryToFire && (game.getAlienShotCount() < game.getAlienShotMax())) {
-			AlienShotEntity shot = new AlienShotEntity(this.game, "sprites/shot.gif", (int)(this.getXPosition() - 10), (int)(this.getYPosition() + 30));
-			shot.setYVelocity(200);
-			game.getEntities().add(shot);
-			game.setAlienShotCount(game.getAlienShotCount() + 1);
+		dx = -dx;
+		y += 10;
+
+		if (y > 570) {
+			game.notifyDeath();
 		}
 	}
 
-	
+
+	public void collidedWith(Entity other) {
+		
+	}
 }

@@ -1,49 +1,31 @@
 package com.nbuwalda.spaceinvaders.entity;
 
 import com.nbuwalda.spaceinvaders.Game;
-import com.nbuwalda.spaceinvaders.resources.ResourceFactory;
 
-public class ShipEntity extends AbstractEntity {
+public class ShipEntity extends Entity {
 
 	private Game game;
 
-	public ShipEntity(Game game, String imageRef, int xStartPosition, int yStartPosition) {
-		super(imageRef, xStartPosition, yStartPosition);
+	public ShipEntity(Game game, String ref, int x, int y) {
+		super(ref, x, y);
 		this.game = game;
-		this.getFrames().add(ResourceFactory.getFactory().createSprite("sprites/ship.gif"));
 	}
 
-	@Override
 	public void move(long delta) {
-		// left and right bounds
-		if (getXVelocity() < 0 && getXPosition() < 10) {
-			return;
-		} else if (getXVelocity() > 0 && getXPosition() > 750) {
+		if ((dx < 0) && (x < 10)) {
 			return;
 		}
 		
-		// up and down bounds
-		if (getYVelocity() < 0 && getYPosition() < 500) {
-			return;
-		} else if (getYVelocity() > 0 && getYPosition() > 550) {
+		if ((dx > 0) && (x > 750)) {
 			return;
 		}
-		
+
 		super.move(delta);
 	}
 
-	@Override
-	public void collidedWith(AbstractEntity other) {
+	public void collidedWith(Entity other) {
 		if (other instanceof AlienEntity) {
-			game.notifyPlayerDeath();
+			game.notifyDeath();
 		}
 	}
-
-	@Override
-	public void doLogic() {
-		// no logic
-	}
-
-	
 }
-

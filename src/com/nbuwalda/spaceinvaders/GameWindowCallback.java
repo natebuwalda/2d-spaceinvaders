@@ -1,8 +1,9 @@
 package com.nbuwalda.spaceinvaders;
 
+
 public interface GameWindowCallback {
 
-	void init();
+	void initialise();
 	void frameRendering();
 	void windowClosed();
 }
