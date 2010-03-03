@@ -10,10 +10,10 @@ import javax.swing.JOptionPane;
 import com.nbuwalda.game.entity.AbstractEntity;
 import com.nbuwalda.game.resources.ResourceFactory;
 import com.nbuwalda.game.resources.Sprite;
+import com.nbuwalda.game.timer.SystemTimer;
 import com.nbuwalda.spaceinvaders.entity.AlienEntity;
 import com.nbuwalda.spaceinvaders.entity.ShipEntity;
 import com.nbuwalda.spaceinvaders.entity.ShotEntity;
-import com.nbuwalda.spaceinvaders.timer.SystemTimer;
 
 public class Game extends Canvas implements GameWindowCallback {
 
@@ -33,8 +33,8 @@ public class Game extends Canvas implements GameWindowCallback {
 	private List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
 	private List<AbstractEntity> removeList = new ArrayList<AbstractEntity>();
 	private AbstractEntity ship;
-	private Sprite message;
 	private GameWindow window;
+	private Sprite message;
 	private Sprite pressAnyKey;
 	private Sprite youWin;
 	private Sprite gotYou;

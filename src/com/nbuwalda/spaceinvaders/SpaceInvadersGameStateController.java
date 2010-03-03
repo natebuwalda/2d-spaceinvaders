@@ -1,8 +1,12 @@
 package com.nbuwalda.spaceinvaders;
 
+import com.nbuwalda.game.resources.ResourceFactory;
 import com.nbuwalda.game.state.GameStateController;
 
 public class SpaceInvadersGameStateController implements GameStateController {
+
+	private int renderingType;
+	private GameWindow gameWindow;
 
 	public SpaceInvadersGameStateController() {
 		super();
@@ -12,7 +16,8 @@ public class SpaceInvadersGameStateController implements GameStateController {
 	 * @see com.nbuwalda.spaceinvaders.GameStateController#initializeGame()
 	 */
 	public void initializeGame() {
-		
+//		ResourceFactory
+		this.gameWindow = ResourceFactory.get().getGameWindow();
 	}
 	
 	/* (non-Javadoc)
@@ -48,5 +53,13 @@ public class SpaceInvadersGameStateController implements GameStateController {
 	 */
 	public void run() {
 		
+	}
+
+	public void setRenderingType(int renderingType) {
+		this.renderingType = renderingType;
+	}
+
+	public GameWindow getGameWindow() {
+		return this.gameWindow;
 	}
 }

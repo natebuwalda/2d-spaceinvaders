@@ -1,4 +1,4 @@
-package com.nbuwalda.spaceinvaders.timer;
+package com.nbuwalda.game.timer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -46,18 +46,19 @@ public class LWJGLGameWindow implements GameWindow {
 			// get modes
 			DisplayMode[] dm = org.lwjgl.util.Display.getAvailableDisplayModes(width, height, -1, -1, -1, -1, 60, 60);
 
+			if (dm != null)
+				System.out.println(dm.length);
+			
 			org.lwjgl.util.Display.setDisplayMode(dm, new String[] {
 					"width=" + width,
 					"height=" + height,
 					"freq=" + 60,
-					"bpp="+ org.lwjgl.opengl.Display.getDisplayMode()
-									.getBitsPerPixel() });
+					"bpp="+ org.lwjgl.opengl.Display.getDisplayMode().getBitsPerPixel() });
 
 			return true;
 		} catch (Exception e) {
+			System.out.println("Unable to enter specified display mode");
 			e.printStackTrace();
-			System.out
-					.println("Unable to enter fullscreen, continuing in windowed mode");
 		}
 
 		return false;
