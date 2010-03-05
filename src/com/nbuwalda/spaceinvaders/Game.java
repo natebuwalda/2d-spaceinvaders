@@ -12,6 +12,10 @@ import com.nbuwalda.game.resources.ResourceFactory;
 import com.nbuwalda.game.resources.Sprite;
 import com.nbuwalda.game.timer.SystemTimer;
 import com.nbuwalda.spaceinvaders.entity.AlienEntity;
+import com.nbuwalda.spaceinvaders.entity.BomberEntity;
+import com.nbuwalda.spaceinvaders.entity.DroneEntity;
+import com.nbuwalda.spaceinvaders.entity.EscortEntity;
+import com.nbuwalda.spaceinvaders.entity.HunterEntity;
 import com.nbuwalda.spaceinvaders.entity.ShipEntity;
 import com.nbuwalda.spaceinvaders.entity.ShotEntity;
 
@@ -82,10 +86,18 @@ public class Game extends Canvas implements GameWindowCallback {
 		entities.add(ship);
 
 		alienCount = 0;
-		for (int row = 0; row < 5; row++) {
+		for (int row = 0; row < 6; row++) {
 			for (int x = 0; x < 12; x++) {
-				AbstractEntity alien = new AlienEntity(this, 100 + (x * 50),
-						(50) + row * 30);
+				AbstractEntity alien = null;
+				if (row == 2) {
+					alien = new HunterEntity(this, 100 + (x * 50), (50) + row * 35);
+				} else if (row == 1) {
+					alien = new EscortEntity(this, 100 + (x * 50), (50) + row * 35);
+				} else if (row == 0) {
+					alien = new BomberEntity(this, 100 + (x * 50), (50) + row * 35);
+				} else {
+					alien = new DroneEntity(this, 100 + (x * 50), (50) + row * 35);
+				}
 				entities.add(alien);
 				alienCount++;
 			}
@@ -121,8 +133,7 @@ public class Game extends Canvas implements GameWindowCallback {
 			AbstractEntity entity = (AbstractEntity) entities.get(i);
 
 			if (entity instanceof AlienEntity) {
-				entity
-						.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
+				entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02);
 			}
 		}
 	}

@@ -5,7 +5,7 @@ import com.nbuwalda.game.resources.ResourceFactory;
 import com.nbuwalda.game.resources.Sprite;
 import com.nbuwalda.spaceinvaders.Game;
 
-public class AlienEntity extends AbstractEntity implements Alien {
+public class BomberEntity extends AbstractEntity implements Alien {
 	private double moveSpeed = 75;
 	private Game game;
 	private Sprite[] frames = new Sprite[4];
@@ -13,13 +13,13 @@ public class AlienEntity extends AbstractEntity implements Alien {
 	private long frameDuration = 250;
 	private int frameNumber;
 
-	public AlienEntity(Game game, int x, int y) {
-		super("default-sprites/blue-circle.png", x, y);
+	public BomberEntity(Game game, int x, int y) {
+		super("default-sprites/red-circle.png", x, y);
 
 		frames[0] = sprite;
-		frames[1] = ResourceFactory.get().getSprite("default-sprites/blue-circle.png");
+		frames[1] = ResourceFactory.get().getSprite("default-sprites/red-circle.png");
 		frames[2] = sprite;
-		frames[3] = ResourceFactory.get().getSprite("default-sprites/blue-circle.png");
+		frames[3] = ResourceFactory.get().getSprite("default-sprites/red-circle.png");
 
 		this.game = game;
 		dx = -moveSpeed;

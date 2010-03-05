@@ -30,7 +30,7 @@ public class ShotEntity extends AbstractEntity {
 			return;
 		}
 
-		if (other instanceof AlienEntity) {
+		if (other instanceof Alien) {
 			game.removeEntity(this);
 			game.removeEntity(other);
 
