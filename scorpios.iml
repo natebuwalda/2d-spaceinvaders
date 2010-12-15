@@ -11,8 +11,8 @@
     <libelement value="jar://$MODULE_DIR$/lib/lwjgl.jar!/" />
     <src_description expected_position="0">
       <src_folder value="file://$MODULE_DIR$/sprites" expected_position="2" />
-      <src_folder value="file://$MODULE_DIR$/test" expected_position="1" />
       <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
+      <src_folder value="file://$MODULE_DIR$/test" expected_position="1" />
     </src_description>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
