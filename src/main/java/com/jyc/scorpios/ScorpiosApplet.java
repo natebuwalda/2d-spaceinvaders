@@ -9,17 +9,22 @@ import java.io.IOException;
 
 public class ScorpiosApplet extends Applet {
 
-    Canvas display_parent;
-    Thread gameThread;
-    ScorpiosGame game;
+    private Canvas parentDisplay;
+    private Thread gameThread;
+    private ScorpiosGame game;
+
+    public Canvas getParentDisplay() {
+        return parentDisplay;
+    }
 
     public void startLWJGL() {
         gameThread = new Thread() {
             public void run() {
 
                 try {
-                    Display.setParent(display_parent);
+                    Display.setParent(parentDisplay);
                     game = new ScorpiosGame(false);
+                    game.start();
                     game.execute();
                 } catch (LWJGLException e) {
                     e.printStackTrace();
@@ -32,7 +37,7 @@ public class ScorpiosApplet extends Applet {
     }
 
     private void stopLWJGL() {
-        game.gameRunning = false;
+        game.stop();
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -49,7 +54,7 @@ public class ScorpiosApplet extends Applet {
     }
 
     public void destroy() {
-        remove(display_parent);
+        remove(parentDisplay);
         super.destroy();
         System.out.println("Clear up");
     }
@@ -57,7 +62,7 @@ public class ScorpiosApplet extends Applet {
     public void init() {
         setLayout(new BorderLayout());
         try {
-            display_parent = new Canvas() {
+            parentDisplay = new Canvas() {
                 public void addNotify() {
                     super.addNotify();
                     startLWJGL();
@@ -68,11 +73,11 @@ public class ScorpiosApplet extends Applet {
                     super.removeNotify();
                 }
             };
-            display_parent.setSize(getWidth(), getHeight());
-            add(display_parent);
-            display_parent.setFocusable(true);
-            display_parent.requestFocus();
-            display_parent.setIgnoreRepaint(true);
+            parentDisplay.setSize(getWidth(), getHeight());
+            add(parentDisplay);
+            parentDisplay.setFocusable(true);
+            parentDisplay.requestFocus();
+            parentDisplay.setIgnoreRepaint(true);
             setVisible(true);
         } catch (Exception e) {
             System.err.println(e);

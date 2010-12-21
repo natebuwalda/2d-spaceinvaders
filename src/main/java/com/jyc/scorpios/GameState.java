@@ -1,4 +1,4 @@
-package com.jyc.game;
+package com.jyc.scorpios;
 
 public enum GameState {
     RUNNING,

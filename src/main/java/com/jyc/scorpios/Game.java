@@ -1,4 +1,4 @@
-package com.jyc.game;
+package com.jyc.scorpios;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.jyc.game;
+package com.jyc.scorpios;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -7,13 +7,13 @@ import java.awt.*;
 
 import static org.junit.Assert.assertNotNull;
 
-public class BaseAppletTest {
+public class ScorpiosAppletTest {
 
-    private BaseApplet applet;
+    private ScorpiosApplet applet;
 
     @Before
     public void setUp() {
-        applet = new BaseApplet();
+        applet = new ScorpiosApplet();
     }
 
     @Test
