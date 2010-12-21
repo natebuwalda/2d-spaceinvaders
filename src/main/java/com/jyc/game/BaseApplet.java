@@ -10,7 +10,7 @@ public class BaseApplet extends Applet {
 
     private Canvas parentDisplay;
     private Thread gameThread;
-	private Boolean running = false;
+    private Game game;
 
 	public void init() {
         try {
@@ -53,23 +53,26 @@ public class BaseApplet extends Applet {
         gameThread = new Thread() {
             @Override
             public void run() {
-                running = true;
                 try {
                     Display.setParent(parentDisplay);
                     Display.create();
-//                    initGL();
+                    initGL();
                 } catch (LWJGLException e) {
                         e.printStackTrace();
                 }
-//                gameLoop();
+                game.initialize();
+                game.start();
+                game.execute();
+                while(GameState.RUNNING == game.state()) {
+                    game.gameLoop();
+                }
             }
         };
         gameThread.start();
 	}
 
 	private void stopLWJGL() {
-//		Display.destroy();
-        running = false;
+        game.stop();
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -86,15 +89,15 @@ public class BaseApplet extends Applet {
 
     }
 
-    public void gameLoop() {
-        while (running) {
-            Display.sync(60);
-            Display.update();
-        }
-        Display.destroy();
-    }
-
     public Canvas getParentDisplay() {
         return parentDisplay;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }
