@@ -15,12 +15,12 @@ public class AlienEntity extends AbstractEntity {
     private Integer frameNumber = 1;
 
     public AlienEntity(ScorpiosGame scorpiosGame, Integer x, Integer y) throws IOException {
-        super(scorpiosGame.getSprite("Gnat_Blue-F1.png"), x, y);
+        super(scorpiosGame.getSprite("Gnat_Green-F1.png"), x, y);
 
-        frames[0] = scorpiosGame.getSprite("Gnat_Blue-F1.png");
-        frames[1] = scorpiosGame.getSprite("Gnat_Blue-F2.png");
-        frames[2] = scorpiosGame.getSprite("Gnat_Blue-F3.png");
-        frames[3] = scorpiosGame.getSprite("Gnat_Blue-F4.png");
+        frames[0] = scorpiosGame.getSprite("Gnat_Green-F1.png");
+        frames[1] = scorpiosGame.getSprite("Gnat_Green-F2.png");
+        frames[2] = scorpiosGame.getSprite("Gnat_Green-F3.png");
+        frames[3] = scorpiosGame.getSprite("Gnat_Green-F4.png");
 
         this.game = scorpiosGame;
         horizontalMovement = -moveSpeed;
