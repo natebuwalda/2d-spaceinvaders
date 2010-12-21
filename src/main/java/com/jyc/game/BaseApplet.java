@@ -5,6 +5,7 @@ import org.lwjgl.opengl.Display;
 
 import java.applet.Applet;
 import java.awt.*;
+import java.io.IOException;
 
 public class BaseApplet extends Applet {
 
@@ -12,7 +13,7 @@ public class BaseApplet extends Applet {
     private Thread gameThread;
     private Game game;
 
-	public void init() {
+    public void init() {
         try {
             parentDisplay = new Canvas() {
 
@@ -39,15 +40,15 @@ public class BaseApplet extends Applet {
         add(parentDisplay);
         setLayout(new BorderLayout());
         setVisible(true);
-	}
+    }
 
-	public void start() {
+    public void start() {
 
-	}
+    }
 
-	public void stop() {
+    public void stop() {
 
-	}
+    }
 
     public void startLWJGL() {
         gameThread = new Thread() {
@@ -58,20 +59,24 @@ public class BaseApplet extends Applet {
                     Display.create();
                     initGL();
                 } catch (LWJGLException e) {
-                        e.printStackTrace();
+                    e.printStackTrace();
                 }
-                game.initialize();
-                game.start();
-                game.execute();
-                while(GameState.RUNNING == game.state()) {
-                    game.gameLoop();
+                try {
+                    game.initialize();
+                    game.start();
+                    game.execute();
+                    while (GameState.RUNNING == game.state()) {
+                        game.gameLoop();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         };
         gameThread.start();
-	}
+    }
 
-	private void stopLWJGL() {
+    private void stopLWJGL() {
         game.stop();
         try {
             gameThread.join();
@@ -80,10 +85,10 @@ public class BaseApplet extends Applet {
         }
     }
 
-	public void destroy() {
+    public void destroy() {
         remove(parentDisplay);
         super.destroy();
-	}
+    }
 
     public void initGL() {
 

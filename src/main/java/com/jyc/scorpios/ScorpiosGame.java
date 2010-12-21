@@ -9,6 +9,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,17 +17,17 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class ScorpiosGame implements Game {
     private static Long timerTicksPerSecond = Sys.getTimerResolution();
-    private static Boolean gameRunning = true;
-    private static Boolean isApplication;
+    public static Boolean gameRunning = true;
+    private static Boolean isApplication = false;
 
     private String WINDOW_TITLE = "Scorpios (v0.1)";
-    private Integer height = 800;
-    private Integer width = 600;
+    private Integer height = 600;
+    private Integer width = 800;
     private Boolean fullscreen = false;
     private TextureLoader textureLoader;
     private SoundManager soundManager;
-    private List<Entity> entities = new ArrayList<Entity>();
-    private List<Entity> removeList = new ArrayList<Entity>();
+    private List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
+    private List<AbstractEntity> removeList = new ArrayList<AbstractEntity>();
     private List<ShotEntity> shots = new ArrayList<ShotEntity>();
     private List<AlienEntity> aliens = new ArrayList<AlienEntity>();
     private ShipEntity ship;
@@ -52,13 +53,13 @@ public class ScorpiosGame implements Game {
     private Integer SOUND_LOOSE;
     private Integer mouseX;
 
-    public ScorpiosGame(boolean fullscreen) {
+    public ScorpiosGame(boolean fullscreen) throws IOException {
         this.fullscreen = fullscreen;
 		initialize();
     }
 
     @Override
-    public void initialize() {
+    public void initialize() throws IOException {
         // initialize the window beforehand
         try {
             setDisplayMode();
@@ -124,7 +125,7 @@ public class ScorpiosGame implements Game {
     }
 
     @Override
-    public void gameLoop() {
+    public void gameLoop() throws IOException {
         while (gameRunning) {
             // clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -159,7 +160,7 @@ public class ScorpiosGame implements Game {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws IOException {
         gameLoop();
     }
 
@@ -216,7 +217,7 @@ public class ScorpiosGame implements Game {
      * Start a fresh game, this should clear out any old data and
      * create a new set.
      */
-    private void startGame() {
+    private void startGame() throws IOException {
         // clear out any existing entities and intialise a new set
         entities.clear();
         initEntities();
@@ -226,7 +227,7 @@ public class ScorpiosGame implements Game {
      * Initialise the starting state of the entities (ship and aliens). Each
      * entitiy will be added to the overall list of entities in the game.
      */
-    private void initEntities() {
+    private void initEntities() throws IOException {
         // create the player ship and place it roughly in the center of the screen
         ship = new ShipEntity(this, "ship.gif", 370, 550);
         entities.add(ship);
@@ -257,7 +258,7 @@ public class ScorpiosGame implements Game {
      *
      * @param entity The entity that should be removed
      */
-    public void removeEntity(Entity entity) {
+    public void removeEntity(AbstractEntity entity) {
         removeList.add(entity);
     }
 
@@ -295,7 +296,7 @@ public class ScorpiosGame implements Game {
 
         // if there are still some aliens left then they all need to get faster, so
         // speed up all the existing aliens
-        for (Entity entity : entities) {
+        for (AbstractEntity entity : entities) {
             if (entity instanceof AlienEntity) {
                 // speed up by 2%
                 entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02f);
@@ -319,7 +320,7 @@ public class ScorpiosGame implements Game {
         // if we waited long enough, create the shot entity, and record the time.
         shotLastFiredTime = System.currentTimeMillis();
         ShotEntity shot = shots.get(shotIndex++ % shots.size());
-        shot.reinitialize(ship.getX() + 10, ship.getY() - 30);
+        shot.reinitialize(ship.getX() + 10F, ship.getY() - 30F);
         entities.add(shot);
 
         soundManager.playEffect(SOUND_SHOT);
@@ -329,7 +330,7 @@ public class ScorpiosGame implements Game {
      * Notification that a frame is being rendered. Responsible for
      * running game logic and rendering the scene.
      */
-    public void frameRendering() {
+    public void frameRendering() throws IOException {
         //SystemTimer.sleep(lastLoopTime+10-SystemTimer.getTime());
         Display.sync(60);
 
@@ -350,13 +351,13 @@ public class ScorpiosGame implements Game {
 
         // cycle round asking each entity to move itself
         if (!waitingForKeyPress && !soundManager.isPlayingSound()) {
-            for (Entity entity : entities) {
+            for (AbstractEntity entity : entities) {
                 entity.move(delta);
             }
         }
 
         // cycle round drawing all the entities we have in the game
-        for (Entity entity : entities) {
+        for (AbstractEntity entity : entities) {
             entity.draw();
         }
 
@@ -365,8 +366,8 @@ public class ScorpiosGame implements Game {
         // both entities that the collision has occured
         for (int p = 0; p < entities.size(); p++) {
             for (int s = p + 1; s < entities.size(); s++) {
-                Entity me = entities.get(p);
-                Entity him = entities.get(s);
+                AbstractEntity me = entities.get(p);
+                AbstractEntity him = entities.get(s);
 
                 if (me.collidesWith(him)) {
                     me.collidedWith(him);
@@ -383,7 +384,7 @@ public class ScorpiosGame implements Game {
         // be resolved, cycle round every entity requesting that
         // their personal logic should be considered.
         if (logicRequiredThisLoop) {
-            for (Entity entity : entities) {
+            for (AbstractEntity entity : entities) {
                 entity.doLogic();
             }
 
@@ -472,7 +473,7 @@ public class ScorpiosGame implements Game {
      *
      * @param argv The arguments that are passed into our game
      */
-    public static void main(String argv[]) {
+    public static void main(String argv[]) throws IOException {
         isApplication = true;
         System.out.println("Use -fullscreen for fullscreen mode");
         new ScorpiosGame((argv.length > 0 && "-fullscreen".equalsIgnoreCase(argv[0]))).execute();
@@ -486,7 +487,11 @@ public class ScorpiosGame implements Game {
      * @param ref A reference to the image to load
      * @return A sprite that can be drawn onto the current graphics context.
      */
-    public Sprite getSprite(String ref) {
+    public Sprite getSprite(String ref) throws IOException {
         return new Sprite(textureLoader, ref);
+    }
+
+    public static void gameRunning(Boolean gameRunning) {
+        ScorpiosGame.gameRunning = gameRunning;
     }
 }

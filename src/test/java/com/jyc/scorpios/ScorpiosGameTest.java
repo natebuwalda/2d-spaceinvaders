@@ -7,6 +7,6 @@ public class ScorpiosGameTest {
 
     @Before
     public void setUp() throws Exception {
-        game = new ScorpiosGame();
+//        game = new ScorpiosGame();
     }
 }

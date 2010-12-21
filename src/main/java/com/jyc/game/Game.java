@@ -1,11 +1,13 @@
 package com.jyc.game;
 
+import java.io.IOException;
+
 public interface Game {
 
-    void initialize();
-    void gameLoop();
+    void initialize() throws IOException;
+    void gameLoop() throws IOException;
     GameState state();
     void start();
     void stop();
-    void execute();
+    void execute() throws IOException;
 }
