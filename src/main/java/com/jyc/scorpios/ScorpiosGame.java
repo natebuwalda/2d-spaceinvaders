@@ -16,18 +16,13 @@ import static org.lwjgl.opengl.GL11.*;
 public class ScorpiosGame implements Game {
     private static Long timerTicksPerSecond = Sys.getTimerResolution();
     private static Boolean isApplication = false;
-
     private String WINDOW_TITLE = "Scorpios (v0.1)";
     private Integer height = 600;
     private Integer width = 800;
     private Boolean fullscreen = false;
     private TextureLoader textureLoader;
     private SoundManager soundManager;
-    private List<AbstractEntity> entities = new ArrayList<AbstractEntity>();
-    private List<AbstractEntity> removeList = new ArrayList<AbstractEntity>();
-    private List<ShotEntity> shots = new ArrayList<ShotEntity>();
-    private List<AlienEntity> aliens = new ArrayList<AlienEntity>();
-    private ShipEntity ship;
+    private EntityCache entityCache;
     private Sprite message;
     private Sprite pressAnyKey;
     private Sprite youWin;
@@ -58,24 +53,18 @@ public class ScorpiosGame implements Game {
 
     @Override
     public void initialize() throws IOException {
-        // initialize the window beforehand
         try {
             setDisplayMode();
             Display.setTitle(WINDOW_TITLE);
             Display.setFullscreen(fullscreen);
             Display.create();
 
-            // grab the mouse, dont want that hideous cursor when we're playing!
             if (isApplication) {
                 Mouse.setGrabbed(true);
             }
 
-            // enable textures since we're going to use these for our sprites
             glEnable(GL_TEXTURE_2D);
-
-            // disable the OpenGL depth test since we're rendering 2D graphics
             glDisable(GL_DEPTH_TEST);
-
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
 
@@ -85,15 +74,10 @@ public class ScorpiosGame implements Game {
             glViewport(0, 0, width, height);
 
             textureLoader = new TextureLoader();
-
-            // create our sound manager, and initialize it with 7 channels
-            // 1 channel for sounds, 6 for effects - this should be enough
-            // since we have a most 4 shots on screen at any one time, which leaves
-            // us with 2 channels for explosions.
+            entityCache = new EntityCache();
             soundManager = new SoundManager();
-            soundManager.initialize(8);
 
-            // load our sound data
+            soundManager.initialize(8);
             SOUND_SHOT = soundManager.addSound("shot.wav");
             SOUND_HIT = soundManager.addSound("hit.wav");
             SOUND_START = soundManager.addSound("start.wav");
@@ -106,20 +90,22 @@ public class ScorpiosGame implements Game {
             return;
         }
 
-        // get our sprites
         gotYou = getSprite("gotyou.gif");
         pressAnyKey = getSprite("pressanykey.gif");
         youWin = getSprite("youwin.gif");
 
         message = pressAnyKey;
 
-        // setup 5 shots
-        for (int i = 0; i < 5; i++) {
-            shots.add(new ShotEntity(this, "shot.gif", 0, 0));
-        }
+        entityCache = new EntityCache();
+        entityCache.addPlayerShipEntity(new ShipEntity(this, "ship.gif", 370, 550));
 
-        // setup the initial game state
-        startGame();
+        // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
+        for (int row = 0; row < 5; row++) {
+            for (int x = 0; x < 12; x++) {
+                entityCache.addAlienEntity(new AlienEntity(this, 100 + (x * 50), (50) + row * 30));
+            }
+        }
+        alienCount = entityCache.alienCount();
     }
 
     @Override
@@ -186,33 +172,8 @@ public class ScorpiosGame implements Game {
         return false;
     }
 
-    private void startGame() throws IOException {
-        entities.clear();
-        initEntities();
-    }
-
-    private void initEntities() throws IOException {
-        // create the player ship and place it roughly in the center of the screen
-        ship = new ShipEntity(this, "ship.gif", 370, 550);
-        entities.add(ship);
-
-        // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
-        alienCount = 0;
-        for (int row = 0; row < 5; row++) {
-            for (int x = 0; x < 12; x++) {
-                AlienEntity alien = new AlienEntity(this, 100 + (x * 50), (50) + row * 30);
-                entities.add(alien);
-                alienCount++;
-            }
-        }
-    }
-
     public void updateLogic() {
         logicRequiredThisLoop = true;
-    }
-
-    public void removeEntity(AbstractEntity entity) {
-        removeList.add(entity);
     }
 
     public void notifyDeath() {
@@ -230,13 +191,11 @@ public class ScorpiosGame implements Game {
     }
 
     public void notifyAlienKilled() {
-        alienCount--;
-
-        if (alienCount == 0) {
+        if (entityCache.alienCount() <= 1) {
             notifyWin();
         }
 
-        for (AbstractEntity entity : entities) {
+        for (AbstractEntity entity : entityCache.allEntities()) {
             if (entity instanceof AlienEntity) {
                 entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02f);
             }
@@ -245,15 +204,17 @@ public class ScorpiosGame implements Game {
         soundManager.playEffect(SOUND_HIT);
     }
 
-    public void tryToFire() {
-        if (System.currentTimeMillis() - shotLastFiredTime < playerFiringInterval) {
+    public void tryToFire() throws IOException {
+        if (System.currentTimeMillis() - shotLastFiredTime < playerFiringInterval)
             return;
-        }
+
 
         shotLastFiredTime = System.currentTimeMillis();
-        ShotEntity shot = shots.get(shotIndex++ % shots.size());
-        shot.reinitialize(ship.getX() + 10F, ship.getY() - 30F);
-        entities.add(shot);
+        ShotEntity shot = new ShotEntity(this,
+                                         new Float(entityCache.playerShip().getX() + 10F).intValue(),
+                                         new Float(entityCache.playerShip().getY() - 30F).intValue());
+        if (entityCache.shotCount() < 5)
+            entityCache.addShotEntity(shot);
 
         soundManager.playEffect(SOUND_SHOT);
     }
@@ -273,20 +234,20 @@ public class ScorpiosGame implements Game {
         }
 
         if (!waitingForKeyPress && !soundManager.isPlayingSound()) {
-            for (AbstractEntity entity : entities) {
+            for (AbstractEntity entity : entityCache.allEntities()) {
                 entity.move(delta);
             }
         }
 
-        for (AbstractEntity entity : entities) {
+        for (AbstractEntity entity : entityCache.allEntities()) {
             entity.draw();
         }
 
         // collision detection
-        for (int p = 0; p < entities.size(); p++) {
-            for (int s = p + 1; s < entities.size(); s++) {
-                AbstractEntity me = entities.get(p);
-                AbstractEntity him = entities.get(s);
+        for (int p = 0; p < entityCache.entityCount(); p++) {
+            for (int s = p + 1; s < entityCache.entityCount(); s++) {
+                AbstractEntity me = entityCache.allEntities().get(p);
+                AbstractEntity him = entityCache.allEntities().get(s);
 
                 if (me.collidesWith(him)) {
                     me.collidedWith(him);
@@ -294,12 +255,10 @@ public class ScorpiosGame implements Game {
                 }
             }
         }
-
-        entities.removeAll(removeList);
-        removeList.clear();
+        entityCache.flushRemovals();
 
         if (logicRequiredThisLoop) {
-            for (AbstractEntity entity : entities) {
+            for (AbstractEntity entity : entityCache.allEntities()) {
                 entity.doLogic();
             }
 
@@ -310,7 +269,7 @@ public class ScorpiosGame implements Game {
             message.draw(325, 250);
         }
 
-        ship.setHorizontalMovement(0);
+        entityCache.playerShip().setHorizontalMovement(0);
         mouseX = Mouse.getDX();
 
         boolean leftPressed = hasInput(Keyboard.KEY_LEFT);
@@ -324,14 +283,23 @@ public class ScorpiosGame implements Game {
             if ((firePressed) && (fireHasBeenReleased) && !soundManager.isPlayingSound()) {
                 waitingForKeyPress = false;
                 fireHasBeenReleased = false;
-                startGame();
+                entityCache = new EntityCache();
+                entityCache.addPlayerShipEntity(new ShipEntity(this, "ship.gif", 370, 550));
+
+                // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
+                for (int row = 0; row < 5; row++) {
+                    for (int x = 0; x < 12; x++) {
+                        entityCache.addAlienEntity(new AlienEntity(this, 100 + (x * 50), (50) + row * 30));
+                    }
+                }
+                alienCount = entityCache.alienCount();
                 soundManager.playSound(SOUND_START);
             }
         } else {
             if ((leftPressed) && (!rightPressed)) {
-                ship.setHorizontalMovement(-playerMoveSpeed);
+                entityCache.playerShip().setHorizontalMovement(-playerMoveSpeed);
             } else if ((rightPressed) && (!leftPressed)) {
-                ship.setHorizontalMovement(playerMoveSpeed);
+                entityCache.playerShip().setHorizontalMovement(playerMoveSpeed);
             }
 
             if (firePressed) {
@@ -347,19 +315,10 @@ public class ScorpiosGame implements Game {
     private boolean hasInput(int direction) {
         switch (direction) {
             case Keyboard.KEY_LEFT:
-                return
-                        Keyboard.isKeyDown(Keyboard.KEY_LEFT) ||
-                                mouseX < 0;
-
+                return Keyboard.isKeyDown(Keyboard.KEY_LEFT) || mouseX < 0;
             case Keyboard.KEY_RIGHT:
-                return
-                        Keyboard.isKeyDown(Keyboard.KEY_RIGHT) ||
-                                mouseX > 0;
-
-            case Keyboard.KEY_SPACE:
-                return
-                        Keyboard.isKeyDown(Keyboard.KEY_SPACE) ||
-                                Mouse.isButtonDown(0);
+                return Keyboard.isKeyDown(Keyboard.KEY_RIGHT) || mouseX > 0;
+            case Keyboard.KEY_SPACE: return Keyboard.isKeyDown(Keyboard.KEY_SPACE) || Mouse.isButtonDown(0);
         }
         return false;
     }
@@ -375,4 +334,7 @@ public class ScorpiosGame implements Game {
         return new Sprite(textureLoader, ref);
     }
 
+    public EntityCache getEntityCache() {
+        return entityCache;
+    }
 }
