@@ -1,5 +1,10 @@
 package com.jyc.scorpios;
 
+import com.jyc.scorpios.entity.AbstractEntity;
+import com.jyc.scorpios.entity.GreenGnatEntity;
+import com.jyc.scorpios.entity.ShipEntity;
+import com.jyc.scorpios.entity.ShotEntity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,13 +13,13 @@ public class EntityCache {
     private List<AbstractEntity> allEntities = new ArrayList<AbstractEntity>();
     private List<AbstractEntity> entitiesToRemove = new ArrayList<AbstractEntity>();
     private List<ShotEntity> shots = new ArrayList<ShotEntity>();
-    private List<AlienEntity> aliens = new ArrayList<AlienEntity>();
+    private List<GreenGnatEntity> greenGnats = new ArrayList<GreenGnatEntity>();
     private ShipEntity ship;
 
 
-    public void addAlienEntity(AlienEntity alien) {
-        allEntities.add(alien);
-        aliens.add(alien);
+    public void addAlienEntity(GreenGnatEntity greenGnat) {
+        allEntities.add(greenGnat);
+        greenGnats.add(greenGnat);
     }
 
     public void addShotEntity(ShotEntity shot) {
@@ -23,7 +28,7 @@ public class EntityCache {
     }
 
     public Integer alienCount() {
-        return aliens.size();
+        return greenGnats.size();
     }
 
     public Integer shotCount() {
@@ -47,8 +52,8 @@ public class EntityCache {
         for (AbstractEntity entity : entitiesToRemove) {
             if (allEntities.contains(entity)) {
                 allEntities.remove(entity);
-                if (entity instanceof AlienEntity)
-                    aliens.remove(entity);
+                if (entity instanceof GreenGnatEntity)
+                    greenGnats.remove(entity);
                 if (entity instanceof ShotEntity)
                     shots.remove(entity);
                 removalCount++;

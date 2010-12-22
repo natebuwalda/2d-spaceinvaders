@@ -1,5 +1,6 @@
-package com.jyc.scorpios;
+package com.jyc.scorpios.entity;
 
+import com.jyc.scorpios.Sprite;
 import org.lwjgl.util.Rectangle;
 
 public abstract class AbstractEntity {

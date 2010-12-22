@@ -1,5 +1,9 @@
 package com.jyc.scorpios;
 
+import com.jyc.scorpios.entity.AbstractEntity;
+import com.jyc.scorpios.entity.GreenGnatEntity;
+import com.jyc.scorpios.entity.ShipEntity;
+import com.jyc.scorpios.entity.ShotEntity;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
@@ -8,18 +12,17 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class ScorpiosGame implements Game {
     private static Long timerTicksPerSecond = Sys.getTimerResolution();
     private static Boolean isApplication = false;
-    private String WINDOW_TITLE = "Scorpios (v0.1)";
+    private String windowTitle = "Scorpios (v0.1)";
     private Integer height = 600;
     private Integer width = 800;
     private Boolean fullscreen = false;
+    private GameState currentState;
     private TextureLoader textureLoader;
     private SoundManager soundManager;
     private EntityCache entityCache;
@@ -27,8 +30,6 @@ public class ScorpiosGame implements Game {
     private Sprite pressAnyKey;
     private Sprite youWin;
     private Sprite gotYou;
-    private GameState currentState;
-    private Integer shotIndex = 0;
     private Float playerMoveSpeed = 300.0f;
     private Long shotLastFiredTime = 0L;
     private Long playerFiringInterval = 500L;
@@ -38,7 +39,6 @@ public class ScorpiosGame implements Game {
     private Boolean fireHasBeenReleased = true;
     private Long lastFpsTime = 0L;
     private Integer fps = 0;
-    private Integer alienCount;
     private Integer SOUND_SHOT;
     private Integer SOUND_HIT;
     private Integer SOUND_START;
@@ -55,7 +55,7 @@ public class ScorpiosGame implements Game {
     public void initialize() throws IOException {
         try {
             setDisplayMode();
-            Display.setTitle(WINDOW_TITLE);
+            Display.setTitle(windowTitle);
             Display.setFullscreen(fullscreen);
             Display.create();
 
@@ -63,26 +63,11 @@ public class ScorpiosGame implements Game {
                 Mouse.setGrabbed(true);
             }
 
-            glEnable(GL_TEXTURE_2D);
-            glDisable(GL_DEPTH_TEST);
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-
-            glOrtho(0, width, height, 0, -1, 1);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-            glViewport(0, 0, width, height);
-
+            glSetup();
             textureLoader = new TextureLoader();
             entityCache = new EntityCache();
             soundManager = new SoundManager();
-
-            soundManager.initialize(8);
-            SOUND_SHOT = soundManager.addSound("shot.wav");
-            SOUND_HIT = soundManager.addSound("hit.wav");
-            SOUND_START = soundManager.addSound("start.wav");
-            SOUND_WIN = soundManager.addSound("win.wav");
-            SOUND_LOOSE = soundManager.addSound("loose.wav");
+            soundSetup();
         } catch (LWJGLException le) {
             System.out.println("Game exiting - exception in initialization:");
             le.printStackTrace();
@@ -96,16 +81,34 @@ public class ScorpiosGame implements Game {
 
         message = pressAnyKey;
 
-        entityCache = new EntityCache();
+        //setup level
         entityCache.addPlayerShipEntity(new ShipEntity(this, "ship.gif", 370, 550));
 
-        // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
         for (int row = 0; row < 5; row++) {
             for (int x = 0; x < 12; x++) {
-                entityCache.addAlienEntity(new AlienEntity(this, 100 + (x * 50), (50) + row * 30));
+                entityCache.addAlienEntity(new GreenGnatEntity(this, 100 + (x * 50), (50) + row * 30));
             }
         }
-        alienCount = entityCache.alienCount();
+    }
+
+    private void soundSetup() {
+        soundManager.initialize(8);
+        SOUND_SHOT = soundManager.addSound("shot.wav");
+        SOUND_HIT = soundManager.addSound("hit.wav");
+        SOUND_START = soundManager.addSound("start.wav");
+        SOUND_WIN = soundManager.addSound("win.wav");
+        SOUND_LOOSE = soundManager.addSound("loose.wav");
+    }
+
+    private void glSetup() {
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_DEPTH_TEST);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, width, height, 0, -1, 1);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glViewport(0, 0, width, height);
     }
 
     @Override
@@ -196,7 +199,7 @@ public class ScorpiosGame implements Game {
         }
 
         for (AbstractEntity entity : entityCache.allEntities()) {
-            if (entity instanceof AlienEntity) {
+            if (entity instanceof GreenGnatEntity) {
                 entity.setHorizontalMovement(entity.getHorizontalMovement() * 1.02f);
             }
         }
@@ -228,7 +231,7 @@ public class ScorpiosGame implements Game {
         fps++;
 
         if (lastFpsTime >= 1000) {
-            Display.setTitle(WINDOW_TITLE + " (FPS: " + fps + ")");
+            Display.setTitle(windowTitle + " (FPS: " + fps + ")");
             lastFpsTime = 0L;
             fps = 0;
         }
@@ -289,10 +292,9 @@ public class ScorpiosGame implements Game {
                 // create a block of aliens (5 rows, by 12 aliens, spaced evenly)
                 for (int row = 0; row < 5; row++) {
                     for (int x = 0; x < 12; x++) {
-                        entityCache.addAlienEntity(new AlienEntity(this, 100 + (x * 50), (50) + row * 30));
+                        entityCache.addAlienEntity(new GreenGnatEntity(this, 100 + (x * 50), (50) + row * 30));
                     }
                 }
-                alienCount = entityCache.alienCount();
                 soundManager.playSound(SOUND_START);
             }
         } else {

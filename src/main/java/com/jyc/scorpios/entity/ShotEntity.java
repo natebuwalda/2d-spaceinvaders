@@ -1,4 +1,6 @@
-package com.jyc.scorpios;
+package com.jyc.scorpios.entity;
+
+import com.jyc.scorpios.ScorpiosGame;
 
 import java.io.IOException;
 
@@ -24,7 +26,7 @@ public class ShotEntity extends AbstractEntity {
 
     @Override
     public void collidedWith(AbstractEntity other) {
-		if (other instanceof AlienEntity) {
+		if (other instanceof GreenGnatEntity) {
             game.getEntityCache().removeEntity(this);
             game.getEntityCache().removeEntity(other);
             game.notifyAlienKilled();

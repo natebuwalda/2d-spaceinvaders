@@ -1,5 +1,8 @@
 package com.jyc.scorpios;
 
+import com.jyc.scorpios.entity.GreenGnatEntity;
+import com.jyc.scorpios.entity.ShipEntity;
+import com.jyc.scorpios.entity.ShotEntity;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,8 +21,8 @@ public class EntityCacheTest {
 
     @Test
     public void addAlienEntity() {
-        AlienEntity alien = mock(AlienEntity.class);
-        cache.addAlienEntity(alien);
+        GreenGnatEntity greenGnat = mock(GreenGnatEntity.class);
+        cache.addAlienEntity(greenGnat);
 
         assertEquals(1, cache.alienCount().intValue());
         assertEquals(1, cache.entityCount().intValue());
@@ -28,22 +31,22 @@ public class EntityCacheTest {
 
     @Test
     public void addMultipleAliensAndRemoveCorrectOne() {
-        AlienEntity alienA = mock(AlienEntity.class);
-        AlienEntity alienB = mock(AlienEntity.class);
+        GreenGnatEntity greenGnatA = mock(GreenGnatEntity.class);
+        GreenGnatEntity greenGnatB = mock(GreenGnatEntity.class);
 
-        cache.addAlienEntity(alienA);
-        cache.addAlienEntity(alienB);
+        cache.addAlienEntity(greenGnatA);
+        cache.addAlienEntity(greenGnatB);
 
         assertEquals(2, cache.alienCount().intValue());
         assertEquals(2, cache.entityCount().intValue());
 
-        cache.removeEntity(alienB);
+        cache.removeEntity(greenGnatB);
         Integer removed = cache.flushRemovals();
 
         assertEquals(1, removed.intValue());
         assertEquals(1, cache.alienCount().intValue());
         assertEquals(1, cache.entityCount().intValue());
-        assertSame(alienA, cache.allEntities().get(0));
+        assertSame(greenGnatA, cache.allEntities().get(0));
     }
 
     @Test

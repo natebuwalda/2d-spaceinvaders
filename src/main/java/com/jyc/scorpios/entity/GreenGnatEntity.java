@@ -1,8 +1,11 @@
-package com.jyc.scorpios;
+package com.jyc.scorpios.entity;
+
+import com.jyc.scorpios.ScorpiosGame;
+import com.jyc.scorpios.Sprite;
 
 import java.io.IOException;
 
-public class AlienEntity extends AbstractEntity {
+public class GreenGnatEntity extends AbstractEntity {
     private static final Integer DOWNWARD_MOVEMENT = 10;
     private static final Integer BOTTOM_BORDER = 570;
     private static final Integer RIGHT_BORDER = 750;
@@ -13,7 +16,7 @@ public class AlienEntity extends AbstractEntity {
     private Long frameDuration = 250L;
     private Integer frameNumber = 1;
 
-    public AlienEntity(ScorpiosGame scorpiosGame, Integer x, Integer y) throws IOException {
+    public GreenGnatEntity(ScorpiosGame scorpiosGame, Integer x, Integer y) throws IOException {
         super(scorpiosGame.getSprite("Gnat_Green-F1.png"), x, y);
 
         frames[0] = scorpiosGame.getSprite("Gnat_Green-F1.png");
