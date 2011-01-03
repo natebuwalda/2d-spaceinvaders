@@ -16,13 +16,14 @@ import java.io.IOException;
 import static org.lwjgl.opengl.GL11.*;
 
 public class ScorpiosGame implements Game {
-    private static Long timerTicksPerSecond = Sys.getTimerResolution();
+
     private static Boolean isApplication = false;
     private String windowTitle = "Scorpios (v0.1)";
     private Integer height = 600;
     private Integer width = 800;
     private Boolean fullscreen = false;
-    private GameState currentState;
+    private GameCondition currentCondition;
+    private GameState gameState = GameState.instance();
     private TextureLoader textureLoader;
     private SoundManager soundManager;
     private EntityCache entityCache;
@@ -30,15 +31,6 @@ public class ScorpiosGame implements Game {
     private Sprite pressAnyKey;
     private Sprite youWin;
     private Sprite gotYou;
-    private Float playerMoveSpeed = 300.0f;
-    private Long shotLastFiredTime = 0L;
-    private Long playerFiringInterval = 500L;
-    private Boolean waitingForKeyPress = true;
-    private Boolean logicRequiredThisLoop = false;
-    private Long lastLoopTime = getTime();
-    private Boolean fireHasBeenReleased = true;
-    private Long lastFpsTime = 0L;
-    private Integer fps = 0;
     private Integer SOUND_SHOT;
     private Integer SOUND_HIT;
     private Integer SOUND_START;
@@ -71,7 +63,7 @@ public class ScorpiosGame implements Game {
         } catch (LWJGLException le) {
             System.out.println("Game exiting - exception in initialization:");
             le.printStackTrace();
-            currentState = GameState.ERROR;
+            currentCondition = GameCondition.ERROR;
             return;
         }
 
@@ -113,7 +105,7 @@ public class ScorpiosGame implements Game {
 
     @Override
     public void gameLoop() throws IOException {
-        while (currentState == GameState.RUNNING) {
+        while (currentCondition == GameCondition.RUNNING) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
@@ -126,34 +118,23 @@ public class ScorpiosGame implements Game {
     }
 
     @Override
-    public GameState state() {
-        return currentState;
+    public GameCondition condition() {
+        return currentCondition;
     }
 
     @Override
     public void start() {
-        currentState = GameState.RUNNING;
+        currentCondition = GameCondition.RUNNING;
     }
 
     @Override
     public void stop() {
-        currentState = GameState.STOPPED;
+        currentCondition = GameCondition.STOPPED;
     }
 
     @Override
     public void execute() throws IOException {
         gameLoop();
-    }
-
-    public static long getTime() {
-        return (Sys.getTime() * 1000) / timerTicksPerSecond;
-    }
-
-    public static void sleep(long duration) {
-        try {
-            Thread.sleep((duration * timerTicksPerSecond) / 1000);
-        } catch (InterruptedException inte) {
-        }
     }
 
     private boolean setDisplayMode() {
@@ -176,20 +157,20 @@ public class ScorpiosGame implements Game {
     }
 
     public void updateLogic() {
-        logicRequiredThisLoop = true;
+        gameState.logicRequiredThisLoop = true;
     }
 
     public void notifyDeath() {
-        if (!waitingForKeyPress) {
+        if (!gameState.waitingForKeyPress) {
             soundManager.playSound(SOUND_LOOSE);
         }
         message = gotYou;
-        waitingForKeyPress = true;
+        gameState.waitingForKeyPress = true;
     }
 
     public void notifyWin() {
         message = youWin;
-        waitingForKeyPress = true;
+        gameState.waitingForKeyPress = true;
         soundManager.playSound(SOUND_WIN);
     }
 
@@ -208,11 +189,11 @@ public class ScorpiosGame implements Game {
     }
 
     public void tryToFire() throws IOException {
-        if (System.currentTimeMillis() - shotLastFiredTime < playerFiringInterval)
+        if (System.currentTimeMillis() - gameState.shotLastFiredTime < gameState.playerFiringInterval)
             return;
 
 
-        shotLastFiredTime = System.currentTimeMillis();
+        gameState.shotLastFiredTime = System.currentTimeMillis();
         ShotEntity shot = new ShotEntity(this,
                                          new Float(entityCache.playerShip().getX() + 10F).intValue(),
                                          new Float(entityCache.playerShip().getY() - 30F).intValue());
@@ -225,18 +206,18 @@ public class ScorpiosGame implements Game {
     public void frameRendering() throws IOException {
         Display.sync(60);
 
-        long delta = getTime() - lastLoopTime;
-        lastLoopTime = getTime();
-        lastFpsTime += delta;
-        fps++;
+        long delta = Timer.getTime() - gameState.lastLoopTime;
+        gameState.lastLoopTime = Timer.getTime();
+        gameState.lastFpsTime += delta;
+        gameState.fps++;
 
-        if (lastFpsTime >= 1000) {
-            Display.setTitle(windowTitle + " (FPS: " + fps + ")");
-            lastFpsTime = 0L;
-            fps = 0;
+        if (gameState.lastFpsTime >= 1000) {
+            Display.setTitle(windowTitle + " (FPS: " + gameState.fps + ")");
+            gameState.lastFpsTime = 0L;
+            gameState.fps = 0;
         }
 
-        if (!waitingForKeyPress && !soundManager.isPlayingSound()) {
+        if (!gameState.waitingForKeyPress && !soundManager.isPlayingSound()) {
             for (AbstractEntity entity : entityCache.allEntities()) {
                 entity.move(delta);
             }
@@ -260,15 +241,15 @@ public class ScorpiosGame implements Game {
         }
         entityCache.flushRemovals();
 
-        if (logicRequiredThisLoop) {
+        if (gameState.logicRequiredThisLoop) {
             for (AbstractEntity entity : entityCache.allEntities()) {
                 entity.doLogic();
             }
 
-            logicRequiredThisLoop = false;
+            gameState.logicRequiredThisLoop = false;
         }
 
-        if (waitingForKeyPress) {
+        if (gameState.waitingForKeyPress) {
             message.draw(325, 250);
         }
 
@@ -279,13 +260,13 @@ public class ScorpiosGame implements Game {
         boolean rightPressed = hasInput(Keyboard.KEY_RIGHT);
         boolean firePressed = hasInput(Keyboard.KEY_SPACE);
 
-        if (waitingForKeyPress || soundManager.isPlayingSound()) {
+        if (gameState.waitingForKeyPress || soundManager.isPlayingSound()) {
             if (!firePressed) {
-                fireHasBeenReleased = true;
+                gameState.fireHasBeenReleased = true;
             }
-            if ((firePressed) && (fireHasBeenReleased) && !soundManager.isPlayingSound()) {
-                waitingForKeyPress = false;
-                fireHasBeenReleased = false;
+            if ((firePressed) && (gameState.fireHasBeenReleased) && !soundManager.isPlayingSound()) {
+                gameState.waitingForKeyPress = false;
+                gameState.fireHasBeenReleased = false;
                 entityCache = new EntityCache();
                 entityCache.addPlayerShipEntity(new ShipEntity(this, "ship.gif", 370, 550));
 
@@ -299,9 +280,9 @@ public class ScorpiosGame implements Game {
             }
         } else {
             if ((leftPressed) && (!rightPressed)) {
-                entityCache.playerShip().setHorizontalMovement(-playerMoveSpeed);
+                entityCache.playerShip().setHorizontalMovement(-gameState.playerMoveSpeed);
             } else if ((rightPressed) && (!leftPressed)) {
-                entityCache.playerShip().setHorizontalMovement(playerMoveSpeed);
+                entityCache.playerShip().setHorizontalMovement(gameState.playerMoveSpeed);
             }
 
             if (firePressed) {
@@ -310,7 +291,7 @@ public class ScorpiosGame implements Game {
         }
 
         if ((Display.isCloseRequested() || Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) && isApplication) {
-            currentState = GameState.STOPPED;
+            currentCondition = GameCondition.STOPPED;
         }
     }
 
