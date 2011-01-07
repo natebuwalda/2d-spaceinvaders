@@ -25,7 +25,7 @@ public class ScorpiosApplet extends Applet {
                     Display.setParent(parentDisplay);
                     game = new ScorpiosGame(false);
                     game.start();
-                    game.execute();
+                    game.gameLoop();
                 } catch (LWJGLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
