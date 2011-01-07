@@ -44,11 +44,11 @@ public class GreenGnatEntity extends AbstractEntity {
         }
 
         if ((horizontalMovement < 0) && (x < LEFT_BORDER)) {
-            game.updateLogic();
+            game.gameState.logicRequiredThisLoop = true;
         }
 
         if ((horizontalMovement > 0) && (x > RIGHT_BORDER)) {
-            game.updateLogic();
+            game.gameState.logicRequiredThisLoop = true;
         }
 
         super.move(delta);

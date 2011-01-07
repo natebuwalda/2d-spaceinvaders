@@ -5,7 +5,6 @@ import com.jyc.scorpios.entity.GreenGnatEntity;
 import com.jyc.scorpios.entity.ShipEntity;
 import com.jyc.scorpios.entity.ShotEntity;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -15,15 +14,14 @@ import java.io.IOException;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class ScorpiosGame implements Game {
+public class ScorpiosGame {
 
-    private static Boolean isApplication = false;
+    public GameState gameState = GameState.instance();
     private String windowTitle = "Scorpios (v0.1)";
     private Integer height = 600;
     private Integer width = 800;
     private Boolean fullscreen = false;
     private GameCondition currentCondition;
-    private GameState gameState = GameState.instance();
     private TextureLoader textureLoader;
     private SoundManager soundManager;
     private EntityCache entityCache;
@@ -40,26 +38,29 @@ public class ScorpiosGame implements Game {
 
     public ScorpiosGame(boolean fullscreen) throws IOException {
         this.fullscreen = fullscreen;
-        initialize();
-    }
-
-    @Override
-    public void initialize() throws IOException {
         try {
             setDisplayMode();
             Display.setTitle(windowTitle);
-            Display.setFullscreen(fullscreen);
+            Display.setFullscreen(this.fullscreen);
             Display.create();
 
-            if (isApplication) {
-                Mouse.setGrabbed(true);
-            }
-
-            glSetup();
+            glEnable(GL_TEXTURE_2D);
+            glDisable(GL_DEPTH_TEST);
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(0, width, height, 0, -1, 1);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            glViewport(0, 0, width, height);
             textureLoader = new TextureLoader();
             entityCache = new EntityCache();
             soundManager = new SoundManager();
-            soundSetup();
+            soundManager.initialize(8);
+            SOUND_SHOT = soundManager.addSound("shot.wav");
+            SOUND_HIT = soundManager.addSound("hit.wav");
+            SOUND_START = soundManager.addSound("start.wav");
+            SOUND_WIN = soundManager.addSound("win.wav");
+            SOUND_LOOSE = soundManager.addSound("loose.wav");
         } catch (LWJGLException le) {
             System.out.println("Game exiting - exception in initialization:");
             le.printStackTrace();
@@ -83,27 +84,6 @@ public class ScorpiosGame implements Game {
         }
     }
 
-    private void soundSetup() {
-        soundManager.initialize(8);
-        SOUND_SHOT = soundManager.addSound("shot.wav");
-        SOUND_HIT = soundManager.addSound("hit.wav");
-        SOUND_START = soundManager.addSound("start.wav");
-        SOUND_WIN = soundManager.addSound("win.wav");
-        SOUND_LOOSE = soundManager.addSound("loose.wav");
-    }
-
-    private void glSetup() {
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_DEPTH_TEST);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0, width, height, 0, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glViewport(0, 0, width, height);
-    }
-
-    @Override
     public void gameLoop() throws IOException {
         while (currentCondition == GameCondition.RUNNING) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,24 +97,12 @@ public class ScorpiosGame implements Game {
         Display.destroy();
     }
 
-    @Override
-    public GameCondition condition() {
-        return currentCondition;
-    }
-
-    @Override
     public void start() {
         currentCondition = GameCondition.RUNNING;
     }
 
-    @Override
     public void stop() {
         currentCondition = GameCondition.STOPPED;
-    }
-
-    @Override
-    public void execute() throws IOException {
-        gameLoop();
     }
 
     private boolean setDisplayMode() {
@@ -154,10 +122,6 @@ public class ScorpiosGame implements Game {
         }
 
         return false;
-    }
-
-    public void updateLogic() {
-        gameState.logicRequiredThisLoop = true;
     }
 
     public void notifyDeath() {
@@ -289,10 +253,6 @@ public class ScorpiosGame implements Game {
                 tryToFire();
             }
         }
-
-        if ((Display.isCloseRequested() || Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) && isApplication) {
-            currentCondition = GameCondition.STOPPED;
-        }
     }
 
     private boolean hasInput(int direction) {
@@ -306,12 +266,12 @@ public class ScorpiosGame implements Game {
         return false;
     }
 
-    public static void main(String argv[]) throws IOException {
-        isApplication = true;
-        System.out.println("Use -fullscreen for fullscreen mode");
-        new ScorpiosGame((argv.length > 0 && "-fullscreen".equalsIgnoreCase(argv[0]))).execute();
-        System.exit(0);
-    }
+//    public static void main(String argv[]) throws IOException {
+//        isApplication = true;
+//        System.out.println("Use -fullscreen for fullscreen mode");
+//        new ScorpiosGame((argv.length > 0 && "-fullscreen".equalsIgnoreCase(argv[0]))).gameLoop();
+//        System.exit(0);
+//    }
 
     public Sprite getSprite(String ref) throws IOException {
         return new Sprite(textureLoader, ref);
