@@ -1,7 +1,6 @@
-package com.jyc.scorpios.rewrite;
+package com.jyc.scorpios.rewrite.sprite;
 
 
-import com.jyc.scorpios.rewrite.Sprite;
 import com.jyc.scorpios.Texture;
 import com.jyc.scorpios.TextureLoader;
 

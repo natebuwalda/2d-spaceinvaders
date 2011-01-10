@@ -1,6 +1,6 @@
 package com.jyc.scorpios.rewrite.entity;
 
-import com.jyc.scorpios.rewrite.Sprite;
+import com.jyc.scorpios.rewrite.sprite.Sprite;
 import org.lwjgl.util.Rectangle;
 
 public abstract class AbstractEntity {

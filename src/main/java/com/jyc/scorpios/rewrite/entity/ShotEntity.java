@@ -1,7 +1,7 @@
 package com.jyc.scorpios.rewrite.entity;
 
 import com.jyc.scorpios.ScorpiosGame;
-import com.jyc.scorpios.rewrite.Sprite;
+import com.jyc.scorpios.rewrite.sprite.Sprite;
 
 import java.io.IOException;
 

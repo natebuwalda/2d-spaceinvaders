@@ -6,6 +6,8 @@ import com.jyc.scorpios.rewrite.entity.ShotEntity;
 import com.jyc.scorpios.rewrite.entity.AbstractEntity;
 import com.jyc.scorpios.rewrite.entity.GreenGnatEntity;
 import com.jyc.scorpios.rewrite.entity.ShipEntity;
+import com.jyc.scorpios.rewrite.sprite.*;
+import com.jyc.scorpios.rewrite.sprite.Sprite;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
